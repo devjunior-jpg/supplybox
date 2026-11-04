@@ -156,3 +156,48 @@ window.payWithFedaPay = function(planName, amount) {
         }
     }).open();
 };
+onComplete: async function(response) {
+            if (response.reason === FedaPay.TRANSACTION_APPROVED) {
+                // ID de la transaction renvoyé par FedaPay
+                const transactionId = response.transaction.id;
+                
+                // Appel de notre Edge Function Supabase sécurisée par la clé secrète
+                try {
+                    const res = await fetch('https://btkvexlwkxobuylycnug.supabase.co/functions/v1/verify-fedapay', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            transactionId: transactionId,
+                            merchantId: currentMerchant.id,
+                            planName: planName
+                        })
+                    });
+
+                    const result = await res.json();
+
+                    if (result.success) {
+                        const now = new Date();
+                        const deadline = new Date();
+                        deadline.setDate(now.getDate() + 7); // Garantie 7 jours
+
+                        // Mise à jour locale
+                        currentMerchant.plan = planName;
+                        currentMerchant.subscriptionDate = now.toISOString();
+                        currentMerchant.refundDeadline = deadline.toISOString();
+                        localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
+
+                        alert(`🎉 Paiement FedaPay vérifié et approuvé par le serveur ! Votre Pass ${planName} est désormais actif.`);
+                        if (typeof showDashboard === 'function') showDashboard();
+                    } else {
+                        alert("Erreur lors de la validation du paiement : " + (result.error || "Inconnue"));
+                    }
+                } catch (err) {
+                    console.error("Erreur réseau :", err);
+                    alert("Erreur de communication avec le serveur de vérification.");
+                }
+            } else {
+                alert("Transaction annulée ou non finalisée.");
+            }
+        }
