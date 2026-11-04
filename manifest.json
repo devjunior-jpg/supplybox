@@ -1,0 +1,21 @@
+{
+  "name": "SupplyBox Togo",
+  "short_name": "SupplyBox",
+  "description": "Le marché direct de Lomé",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#16a34a",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
