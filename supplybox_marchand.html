@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="favicon.png">
     <title>SupplyBox Marchand - Espace Vendeur Togo</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <!-- SDK FedaPay Officiel -->
     <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 
@@ -18,10 +18,19 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
-                        accent: { 500: '#f97316', 600: '#ea580c' }
+                        brand: {
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        },
+                        accent: {
+                            500: '#f97316',
+                            600: '#ea580c',
+                        }
                     },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
                 }
             }
         }
@@ -34,6 +43,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-full pb-12 selection:bg-brand-500 selection:text-white">
 
+    <!-- Header App Marchand -->
     <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -42,10 +52,11 @@
                     <h1 class="text-base font-extrabold text-white flex items-center gap-1.5">
                         SupplyBox <span class="text-[10px] bg-accent-500/20 text-accent-400 border border-accent-500/30 px-2 py-0.5 rounded-full font-semibold">ESPACE MARCHAND</span>
                     </h1>
-                    <p class="text-[11px] text-slate-400">Abonnements & Gestion des articles</p>
+                    <p class="text-[11px] text-slate-400">Gérez vos articles et vos Pass de visibilité</p>
                 </div>
             </div>
 
+            <!-- Profile Info / Logout -->
             <div id="header-user-actions" class="hidden flex items-center gap-2">
                 <span id="merchant-status-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full border"></span>
                 <button onclick="logoutMerchant()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl transition">
@@ -55,8 +66,10 @@
         </div>
     </header>
 
+    <!-- Main Container -->
     <main class="max-w-4xl mx-auto px-4 py-6">
-        <!-- Inscription avec Ajout de Quartier Personnalisé & Géolocalisation GPS -->
+
+        <!-- 1. FORMULAIRE D'INSCRIPTION / CONNEXION AVEC AJOUT DE LIEU ET GPS -->
         <section id="auth-section" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
             <div class="text-center space-y-1">
                 <h2 class="text-xl font-bold text-white">Rejoignez SupplyBox Togo</h2>
@@ -66,27 +79,28 @@
             <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Nom de votre Boutique / Commerce *</label>
-                    <input type="text" id="reg-store" required placeholder="Ex: Déckon Tech, Mode & Tendance..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                    <input type="text" id="reg-store" required placeholder="Ex: Déckon Tech, Mode & Tendance..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500">
                 </div>
+
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Numéro WhatsApp Commercial (+228) *</label>
-                    <input type="tel" id="reg-whatsapp" required placeholder="Ex: 90000000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                    <input type="tel" id="reg-whatsapp" required placeholder="Ex: 90000000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500">
                 </div>
-                
-                <!-- AJOUTER UN LIEU / QUARTIER LIBRE OU GÉOLOCALISATION -->
+
+                <!-- AJOUTER UN LIEU / QUARTIER ET INSTALLER LA LOCALISATION GPS -->
                 <div class="space-y-2">
                     <label class="block text-xs font-semibold text-slate-300">Quartier ou Lieu de la Boutique (Lomé) *</label>
                     <div class="flex gap-2">
                         <input type="text" id="reg-quarter" required placeholder="Ex: Agoè, Bè, Hedzranawoé..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
-                        <button type="button" onclick="getDeviceLocation()" class="bg-slate-800 hover:bg-slate-700 text-brand-400 px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1 border border-slate-700 transition" title="Utiliser ma position GPS">
+                        <button type="button" onclick="getDeviceLocation()" class="bg-slate-800 hover:bg-slate-700 text-brand-400 px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition" title="Installer ma position GPS exacte">
                             <i class="ph-bold ph-crosshair text-base"></i>
-                            <span class="hidden sm:inline">GPS</span>
+                            <span>GPS</span>
                         </button>
                     </div>
-                    <p id="geo-status" class="text-[10px] text-slate-500">Saisissez votre quartier ou cliquez sur GPS pour positionner votre commerce sur la carte.</p>
+                    <p id="geo-status" class="text-[10px] text-slate-500">Saisissez votre quartier ou cliquez sur GPS pour installer votre position sur la carte.</p>
                 </div>
 
-                <!-- Champs cachés pour stocker la latitude et longitude GPS -->
+                <!-- Coordonnées GPS cachées -->
                 <input type="hidden" id="reg-lat" value="6.1319">
                 <input type="hidden" id="reg-lng" value="1.2228">
 
@@ -97,10 +111,15 @@
             </form>
         </section>
 
-        <!-- Tableau de bord -->
+        <!-- 2. DASHBOARD MARCHAND -->
         <div id="dashboard-section" class="hidden space-y-6">
-            <div id="subscription-banner" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl"></div>
 
+            <!-- Banner Statut Abonnement & Garantie 7 Jours -->
+            <div id="subscription-banner" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+                <!-- Content injecté par JS -->
+            </div>
+
+            <!-- Grille des Pass / Abonnements (FedaPay) -->
             <section class="space-y-3">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
@@ -110,33 +129,41 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Offre Gratuite -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3">
                         <div>
                             <span class="text-xs font-bold text-slate-400">PASS BASIC</span>
                             <h3 class="text-lg font-black text-white">Gratuit</h3>
-                            <p class="text-xs text-slate-400 mt-1">Pour débuter et publier vos premiers articles.</p>
+                            <p class="text-xs text-slate-400 mt-1">Pour débuter et publier vos premiers articles sur SupplyBox.</p>
                         </div>
                         <button disabled class="w-full bg-slate-800 text-slate-500 text-xs font-bold py-2.5 rounded-xl cursor-not-allowed">Formule Actuelle</button>
                     </div>
 
-                    <div class="bg-slate-900 border border-blue-500/40 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                    <!-- Offre PRO -->
+                    <div class="bg-slate-900 border border-blue-500/40 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden">
+                        <span class="absolute top-3 right-3 bg-blue-500/20 text-blue-400 border border-blue-500/40 text-[10px] font-bold px-2 py-0.5 rounded-full">POPULAIRE</span>
                         <div>
                             <span class="text-xs font-bold text-blue-400">PASS PRO</span>
-                            <h3 class="text-lg font-black text-white">3 000 FCFA <span class="text-xs text-slate-400">/mois</span></h3>
+                            <h3 class="text-lg font-black text-white">3 000 FCFA <span class="text-xs font-normal text-slate-400">/mois</span></h3>
+                            <p class="text-xs text-slate-400 mt-1">Multipliez vos ventes avec le badge PRO et la priorité d'affichage.</p>
                         </div>
-                        <button onclick="payWithFedaPay('PRO', 3000)" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl">Souscrire PRO (T-Money/Flooz)</button>
+                        <button onclick="payWithFedaPay('PRO', 3000)" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-lg shadow-blue-600/30">Souscrire PRO</button>
                     </div>
 
-                    <div class="bg-gradient-to-b from-slate-900 to-amber-950/30 border border-amber-500/50 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                    <!-- Offre VIP Booster -->
+                    <div class="bg-gradient-to-b from-slate-900 to-amber-950/30 border border-amber-500/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden">
+                        <span class="absolute top-3 right-3 bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full">BOOSTER MAX</span>
                         <div>
                             <span class="text-xs font-bold text-amber-400">PASS VIP BOOSTER</span>
-                            <h3 class="text-lg font-black text-white">8 000 FCFA <span class="text-xs text-slate-400">/mois</span></h3>
+                            <h3 class="text-lg font-black text-white">8 000 FCFA <span class="text-xs font-normal text-slate-400">/mois</span></h3>
+                            <p class="text-xs text-slate-400 mt-1">Vos offres envoyées directement en notification Push sur les smartphones.</p>
                         </div>
-                        <button onclick="payWithFedaPay('VIP', 8000)" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-2.5 rounded-xl">Souscrire VIP (T-Money/Flooz)</button>
+                        <button onclick="payWithFedaPay('VIP', 8000)" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-2.5 rounded-xl transition shadow-lg shadow-amber-500/20">Souscrire VIP</button>
                     </div>
                 </div>
             </section>
 
+            <!-- Gestion des Articles -->
             <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -146,48 +173,89 @@
                         <i class="ph-bold ph-plus text-base"></i> Ajouter un article
                     </button>
                 </div>
-                <div id="merchant-products-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+                <div id="merchant-products-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Injecté par JS -->
+                </div>
             </section>
         </div>
+
     </main>
 
-    <!-- Modal Ajouter Produit -->
+    <!-- MODAL AJOUT D'ARTICLE AVEC COMPRESSION D'IMAGE -->
     <div id="add-product-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4 shadow-2xl">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-base font-bold text-white">Publier un nouvel article</h3>
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="ph-bold ph-plus-circle text-brand-500"></i> Publier un nouvel article
+                </h3>
                 <button onclick="closeAddProductModal()" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
 
             <form onsubmit="handleAddProduct(event)" class="space-y-3">
-                <input type="text" id="prod-title" required placeholder="Titre de l'article" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white">
-                <input type="number" id="prod-price" required placeholder="Prix FCFA" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white">
-                <select id="prod-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white">
-                    <option value="Électronique">Électronique</option>
-                    <option value="Mode & Vêtements">Mode & Vêtements</option>
-                    <option value="Maison & Électroménager">Maison & Électroménager</option>
-                </select>
-
-                <div class="space-y-2">
-                    <label class="block text-xs font-semibold text-slate-300">Photo de l'article (Compression auto)</label>
-                    <input type="file" id="prod-file-input" accept="image/*" onchange="handleImageFileSelect(event)" class="w-full text-xs text-slate-400">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Titre de l'article *</label>
+                    <input type="text" id="prod-title" required placeholder="Ex: Chaussure Nike Air Force 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
                 </div>
 
-                <textarea id="prod-desc" required rows="3" placeholder="Description..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white"></textarea>
-                <button type="submit" class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl">Publier sur SupplyBox</button>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Prix (FCFA) *</label>
+                        <input type="number" id="prod-price" required placeholder="Ex: 25000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Catégorie *</label>
+                        <select id="prod-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                            <option value="Électronique">Électronique</option>
+                            <option value="Mode & Vêtements">Mode & Vêtements</option>
+                            <option value="Maison & Électroménager">Maison & Électroménager</option>
+                            <option value="Beauté & Santé">Beauté & Santé</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Photo de l'article *</label>
+                    <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl cursor-pointer bg-slate-950 transition-all p-3 text-center">
+                        <i class="ph-bold ph-file-arrow-up text-2xl text-brand-500 mb-1"></i>
+                        <span class="text-xs text-slate-300 font-medium">Importer depuis la galerie / photo</span>
+                        <span class="text-[10px] text-emerald-400 mt-1 font-semibold flex items-center gap-1">
+                            <i class="ph-bold ph-lightning"></i> Compression automatique haute vitesse
+                        </span>
+                        <input type="file" id="prod-file-input" accept="image/*" onchange="handleImageFileSelect(event)" class="hidden">
+                    </label>
+
+                    <div id="image-preview-wrapper" class="hidden relative mt-2 rounded-xl overflow-hidden h-36 bg-slate-950 border border-slate-800">
+                        <img id="image-preview" src="" alt="Aperçu" class="w-full h-full object-cover">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Description *</label>
+                    <textarea id="prod-desc" required rows="3" placeholder="État du produit, garantie, détails..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500"></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-brand-600/30">Publier l'article</button>
             </form>
         </div>
     </div>
 
-    <script type="module">
-        import { publishProductToSupabase, supabase } from './app.js';
-
+    <!-- JavaScript Logique Marchand -->
+    <script>
         let currentMerchant = null;
         let currentImageBase64 = null;
-        const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_6695770067'; 
+        const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_6695770067'; // Votre clé FedaPay
 
-        // Fonction pour récupérer la position GPS exacte du marchand
-        window.getDeviceLocation = function() {
+        window.addEventListener('DOMContentLoaded', () => {
+            const stored = localStorage.getItem('sb_merchant_session');
+            if (stored) {
+                currentMerchant = JSON.parse(stored);
+                showDashboard();
+            }
+        });
+
+        // Fonction GPS pour installer la position et le lieu
+        function getDeviceLocation() {
             const statusEl = document.getElementById('geo-status');
             if (navigator.geolocation) {
                 statusEl.textContent = "Recherche de votre position GPS...";
@@ -197,19 +265,19 @@
                         const lng = position.coords.longitude;
                         document.getElementById('reg-lat').value = lat;
                         document.getElementById('reg-lng').value = lng;
-                        statusEl.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="ph-bold ph-check"></i> Position GPS enregistrée avec succès (${lat.toFixed(4)}, ${lng.toFixed(4)}) !</span>`;
+                        statusEl.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="ph-bold ph-check"></i> Position GPS installée avec succès (${lat.toFixed(4)}, ${lng.toFixed(4)}) !</span>`;
                     },
                     (error) => {
-                        statusEl.innerHTML = `<span class="text-rose-400">Impossible de récupérer la position GPS. Saisissez votre quartier manuellement.</span>`;
+                        statusEl.innerHTML = `<span class="text-rose-400">Impossible d'obtenir la position GPS. Saisissez votre quartier manuellement.</span>`;
                     },
                     { timeout: 10000 }
                 );
             } else {
                 alert("La géolocalisation n'est pas supportée par votre navigateur.");
             }
-        };
+        }
 
-        window.handleAuth = async function(e) {
+        function handleAuth(e) {
             e.preventDefault();
             const store = document.getElementById('reg-store').value;
             const whatsapp = document.getElementById('reg-whatsapp').value;
@@ -217,30 +285,70 @@
             const lat = parseFloat(document.getElementById('reg-lat').value);
             const lng = parseFloat(document.getElementById('reg-lng').value);
 
-            const { data, error } = await supabase
-                .from('merchants')
-                .insert([{ 
-                    store_name: store, 
-                    whatsapp: whatsapp, 
-                    quarter: quarter, 
-                    latitude: lat,
-                    longitude: lng,
-                    plan_type: 'FREE' 
-                }])
-                .select()
-                .single();
-
-            if (error) {
-                currentMerchant = { id: 'merch_' + Math.random().toString(36).substr(2, 9), storeName: store, whatsapp: whatsapp, quarter: quarter, latitude: lat, longitude: lng, plan: 'FREE' };
-            } else {
-                currentMerchant = { id: data.id, storeName: data.store_name, whatsapp: data.whatsapp, quarter: data.quarter, latitude: data.latitude, longitude: data.longitude, plan: data.plan_type };
-            }
+            currentMerchant = {
+                id: 'merch_' + Math.random().toString(36).substr(2, 9),
+                storeName: store,
+                whatsapp: whatsapp,
+                quarter: quarter,
+                latitude: lat,
+                longitude: lng,
+                plan: 'FREE',
+                products: []
+            };
 
             localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
             showDashboard();
-        };
+        }
 
-        window.payWithFedaPay = function(planName, amount) {
+        function logoutMerchant() {
+            localStorage.removeItem('sb_merchant_session');
+            currentMerchant = null;
+            location.reload();
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            document.getElementById('header-user-actions').classList.remove('hidden');
+            renderMerchantHeader();
+            renderSubscriptionBanner();
+            renderMerchantProducts();
+        }
+
+        function renderMerchantHeader() {
+            const badge = document.getElementById('merchant-status-badge');
+            badge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full border " + 
+                (currentMerchant.plan === 'VIP' ? "bg-amber-500/20 text-amber-400 border-amber-500/40" : 
+                 currentMerchant.plan === 'PRO' ? "bg-blue-500/20 text-blue-400 border-blue-500/40" : "bg-slate-800 text-slate-400 border-slate-700");
+            badge.textContent = `PASS ${currentMerchant.plan}`;
+        }
+
+        function renderSubscriptionBanner() {
+            const container = document.getElementById('subscription-banner');
+            if (currentMerchant.plan === 'FREE') {
+                container.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Votre boutique est en version Gratuite</h3>
+                            <p class="text-xs text-slate-400 mt-0.5">Passez au Pass PRO ou VIP pour booster votre visibilité sur la carte et à Lomé.</p>
+                        </div>
+                        <span class="bg-slate-800 text-slate-400 text-xs px-2.5 py-1 rounded-lg">Gratuit</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-black uppercase px-2 py-0.5 rounded ${currentMerchant.plan === 'VIP' ? 'bg-amber-500 text-slate-950' : 'bg-blue-600 text-white'}">PASS ${currentMerchant.plan} ACTIF</span>
+                            <p class="text-xs text-slate-300 mt-1">Votre commerce bénéficie de la visibilité prioritaire et de la garantie 7 jours.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Paiement Réel / Test FedaPay
+        function payWithFedaPay(planName, amount) {
             if (!currentMerchant) return;
 
             FedaPay.init({
@@ -257,32 +365,21 @@
                         country: 'tg'
                     }
                 },
-                onComplete: async function(response) {
+                onComplete: function(response) {
                     if (response.reason === FedaPay.TRANSACTION_APPROVED) {
-                        const now = new Date();
-                        const deadline = new Date();
-                        deadline.setDate(now.getDate() + 7);
-
                         currentMerchant.plan = planName;
-                        currentMerchant.subscriptionDate = now.toISOString();
-                        currentMerchant.refundDeadline = deadline.toISOString();
-
-                        await supabase
-                            .from('merchants')
-                            .update({ plan_type: planName, subscription_date: now.toISOString(), refund_deadline: deadline.toISOString() })
-                            .eq('id', currentMerchant.id);
-
                         localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-                        alert(`🎉 Paiement FedaPay approuvé ! Votre Pass ${planName} est désormais actif.`);
+                        alert(`🎉 Paiement FedaPay validé ! Votre Pass ${planName} est désormais actif.`);
                         showDashboard();
                     } else {
-                        alert("Transaction non complétée.");
+                        alert("Transaction annulée ou non finalisée.");
                     }
                 }
             }).open();
-        };
+        }
 
-        window.handleImageFileSelect = function(e) {
+        // Compression d'image
+        function handleImageFileSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -308,18 +405,32 @@
                     ctx.drawImage(img, 0, 0, width, height);
 
                     currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('image-preview').src = currentImageBase64;
+                    document.getElementById('image-preview-wrapper').classList.remove('hidden');
                 };
             };
-        };
+        }
 
-        window.handleAddProduct = async function(e) {
+        function openAddProductModal() {
+            currentImageBase64 = null;
+            document.getElementById('image-preview-wrapper').classList.add('hidden');
+            document.getElementById('add-product-modal').classList.remove('hidden');
+            document.getElementById('add-product-modal').classList.add('flex');
+        }
+
+        function closeAddProductModal() {
+            document.getElementById('add-product-modal').classList.add('hidden');
+        }
+
+        function handleAddProduct(e) {
             e.preventDefault();
             if (!currentImageBase64) {
-                alert("Veuillez sélectionner une photo.");
+                alert("Veuillez importer une photo compressée pour l'article.");
                 return;
             }
 
-            const productData = {
+            const newProd = {
+                id: 'prod_' + Math.random().toString(36).substr(2, 9),
                 title: document.getElementById('prod-title').value,
                 price: parseInt(document.getElementById('prod-price').value),
                 category: document.getElementById('prod-category').value,
@@ -327,27 +438,40 @@
                 description: document.getElementById('prod-desc').value
             };
 
-            await publishProductToSupabase(productData);
+            currentMerchant.products.push(newProd);
+            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
             closeAddProductModal();
-        };
-
-        function showDashboard() {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('dashboard-section').classList.remove('hidden');
-            document.getElementById('header-user-actions').classList.remove('hidden');
+            renderMerchantProducts();
+            alert("Article publié avec succès sur SupplyBox !");
         }
 
-        window.openAddProductModal = () => document.getElementById('add-product-modal').classList.remove('hidden');
-        window.closeAddProductModal = () => document.getElementById('add-product-modal').classList.add('hidden');
-        window.logoutMerchant = () => { localStorage.removeItem('sb_merchant_session'); location.reload(); };
+        function deleteProduct(prodId) {
+            currentMerchant.products = currentMerchant.products.filter(p => p.id !== prodId);
+            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
+            renderMerchantProducts();
+        }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const stored = localStorage.getItem('sb_merchant_session');
-            if (stored) {
-                currentMerchant = JSON.parse(stored);
-                showDashboard();
+        function renderMerchantProducts() {
+            const list = document.getElementById('merchant-products-list');
+            if (currentMerchant.products.length === 0) {
+                list.innerHTML = `<div class="col-span-full text-center py-6 text-slate-500 text-xs">Aucun article publié pour le moment.</div>`;
+                return;
             }
-        });
+
+            list.innerHTML = currentMerchant.products.map(p => `
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex gap-3 items-center justify-between">
+                    <img src="${p.image}" class="w-14 h-14 rounded-lg object-cover">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs font-bold text-white truncate">${p.title}</h4>
+                        <p class="text-xs font-extrabold text-brand-500">${new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</p>
+                        <span class="text-[10px] text-slate-400">${p.category}</span>
+                    </div>
+                    <button onclick="deleteProduct('${p.id}')" class="text-rose-400 hover:text-rose-300 p-2 text-base">
+                        <i class="ph-bold ph-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
     </script>
 </body>
 </html>
