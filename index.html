@@ -35,7 +35,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .logo { width: 150px; height: 50px; object-fit: contain; display: block; }
-        #map { z-index: 10; }
+        #map { width: 100%; height: 260px; z-index: 1; position: relative; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-full pb-20 md:pb-8 selection:bg-brand-500 selection:text-white">
@@ -82,7 +82,7 @@
                 </h2>
                 <span class="text-xs text-slate-400">Cliquez sur un marqueur</span>
             </div>
-            <div id="map" class="w-full h-64 rounded-2xl border border-slate-800 shadow-xl overflow-hidden"></div>
+            <div id="map" class="rounded-2xl border border-slate-800 shadow-xl overflow-hidden"></div>
         </section>
 
         <section class="space-y-3">
@@ -179,9 +179,14 @@
         function initMap() {
             map = L.map('map').setView([6.1319, 1.2228], 12);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap SupplyBox'
+                attribution: '© OpenStreetMap SupplyBox',
+                maxZoom: 19
             }).addTo(map);
             markersGroup = L.layerGroup().addTo(map);
+
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
         }
 
         window.updateMapMarkers = function(products) {
