@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>SupplyBox Marchand - Espace Vendeur Togo</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- SDK FedaPay Officiel -->
+    <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                        accent: { 500: '#f97316', 600: '#ea580c' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .logo { width: 160px; height: 55px; object-fit: contain; display: block; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-full pb-12 selection:bg-brand-500 selection:text-white">
+
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <img src="logo-supplybox.png" alt="SupplyBox" class="logo">
+                <div>
+                    <h1 class="text-base font-extrabold text-white flex items-center gap-1.5">
+                        SupplyBox <span class="text-[10px] bg-accent-500/20 text-accent-400 border border-accent-500/30 px-2 py-0.5 rounded-full font-semibold">ESPACE MARCHAND</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400">Abonnements & Gestion des articles</p>
+                </div>
+            </div>
+
+            <div id="header-user-actions" class="hidden flex items-center gap-2">
+                <span id="merchant-status-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full border"></span>
+                <button onclick="logoutMerchant()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl transition">
+                    <i class="ph-bold ph-sign-out text-base"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-6">
+        <!-- Inscription -->
+        <section id="auth-section" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
+            <div class="text-center space-y-1">
+                <h2 class="text-xl font-bold text-white">Rejoignez SupplyBox Togo</h2>
+                <p class="text-xs text-slate-400">Vendez directement vos articles aux clients de Lomé via WhatsApp.</p>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nom de votre Boutique / Commerce *</label>
+                    <input type="text" id="reg-store" required placeholder="Ex: Déckon Tech, Mode & Tendance..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Numéro WhatsApp Commercial (+228) *</label>
+                    <input type="tel" id="reg-whatsapp" required placeholder="Ex: 90000000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Quartier du Magasin (Lomé) *</label>
+                    <select id="reg-quarter" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                        <option value="Déckon">Déckon</option>
+                        <option value="Adidogomé">Adidogomé</option>
+                        <option value="Hedzranawoé">Hedzranawoé</option>
+                        <option value="Tokoin">Tokoin</option>
+                        <option value="Agbalépédou">Agbalépédou</option>
+                        <option value="Kodjoviakopé">Kodjoviakopé</option>
+                        <option value="Bè">Bè</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-storefront text-lg"></i>
+                    <span>Créer mon compte Vendeur</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Tableau de bord -->
+        <div id="dashboard-section" class="hidden space-y-6">
+            <div id="subscription-banner" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl"></div>
+
+            <section class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                        <i class="ph-bold ph-rocket text-accent-500"></i> Booster votre Visibilité
+                    </h2>
+                    <span class="text-xs text-slate-400">Paiement Mobile Money (FedaPay)</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400">PASS BASIC</span>
+                            <h3 class="text-lg font-black text-white">Gratuit</h3>
+                            <p class="text-xs text-slate-400 mt-1">Pour débuter et publier vos premiers articles.</p>
+                        </div>
+                        <button disabled class="w-full bg-slate-800 text-slate-500 text-xs font-bold py-2.5 rounded-xl cursor-not-allowed">Formule Actuelle</button>
+                    </div>
+
+                    <div class="bg-slate-900 border border-blue-500/40 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-xs font-bold text-blue-400">PASS PRO</span>
+                            <h3 class="text-lg font-black text-white">3 000 FCFA <span class="text-xs text-slate-400">/mois</span></h3>
+                        </div>
+                        <button onclick="payWithFedaPay('PRO', 3000)" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl">Souscrire PRO (T-Money/Flooz)</button>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-slate-900 to-amber-950/30 border border-amber-500/50 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+                        <div>
+                            <span class="text-xs font-bold text-amber-400">PASS VIP BOOSTER</span>
+                            <h3 class="text-lg font-black text-white">8 000 FCFA <span class="text-xs text-slate-400">/mois</span></h3>
+                        </div>
+                        <button onclick="payWithFedaPay('VIP', 8000)" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs py-2.5 rounded-xl">Souscrire VIP (T-Money/Flooz)</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="ph-bold ph-package text-brand-500"></i> Mes Articles en Vente
+                    </h3>
+                    <button onclick="openAddProductModal()" class="bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition">
+                        <i class="ph-bold ph-plus text-base"></i> Ajouter un article
+                    </button>
+                </div>
+                <div id="merchant-products-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal Ajouter Produit -->
+    <div id="add-product-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white">Publier un nouvel article</h3>
+                <button onclick="closeAddProductModal()" class="text-slate-400 hover:text-white"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleAddProduct(event)" class="space-y-3">
+                <input type="text" id="prod-title" required placeholder="Titre de l'article" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white">
+                <input type="number" id="prod-price" required placeholder="Prix FCFA" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white">
+                <select id="prod-category" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white">
+                    <option value="Électronique">Électronique</option>
+                    <option value="Mode & Vêtements">Mode & Vêtements</option>
+                    <option value="Maison & Électroménager">Maison & Électroménager</option>
+                </select>
+
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-slate-300">Photo de l'article (Compression auto)</label>
+                    <input type="file" id="prod-file-input" accept="image/*" onchange="handleImageFileSelect(event)" class="w-full text-xs text-slate-400">
+                </div>
+
+                <textarea id="prod-desc" required rows="3" placeholder="Description..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-white"></textarea>
+                <button type="submit" class="w-full bg-brand-600 text-white font-bold py-3 rounded-xl">Publier sur SupplyBox</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { publishProductToSupabase, supabase } from './app.js';
+
+        let currentMerchant = null;
+        let currentImageBase64 = null;
+
+        // Clé FedaPay Sandbox (Remplacez par votre clé pk_sandbox_... ou pk_live_...)
+        const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_6695770067'; 
+
+        window.handleAuth = async function(e) {
+            e.preventDefault();
+            const store = document.getElementById('reg-store').value;
+            const whatsapp = document.getElementById('reg-whatsapp').value;
+            const quarter = document.getElementById('reg-quarter').value;
+
+            const { data, error } = await supabase
+                .from('merchants')
+                .insert([{ store_name: store, whatsapp: whatsapp, quarter: quarter, plan_type: 'FREE' }])
+                .select()
+                .single();
+
+            if (error) {
+                currentMerchant = { id: 'merch_' + Math.random().toString(36).substr(2, 9), storeName: store, whatsapp: whatsapp, quarter: quarter, plan: 'FREE' };
+            } else {
+                currentMerchant = { id: data.id, storeName: data.store_name, whatsapp: data.whatsapp, quarter: data.quarter, plan: data.plan_type };
+            }
+
+            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
+            showDashboard();
+        };
+
+        window.payWithFedaPay = function(planName, amount) {
+            if (!currentMerchant) return;
+
+            FedaPay.init({
+                public_key: FEDAPAY_PUBLIC_KEY,
+                transaction: {
+                    amount: amount,
+                    description: `Abonnement SupplyBox Pass ${planName}`
+                },
+                customer: {
+                    email: 'devjunior33@gmail.com',
+                    lastname: currentMerchant.storeName,
+                    phone_number: {
+                        number: currentMerchant.whatsapp,
+                        country: 'tg'
+                    }
+                },
+                onComplete: async function(response) {
+                    if (response.reason === FedaPay.TRANSACTION_APPROVED) {
+                        const now = new Date();
+                        const deadline = new Date();
+                        deadline.setDate(now.getDate() + 7);
+
+                        currentMerchant.plan = planName;
+                        currentMerchant.subscriptionDate = now.toISOString();
+                        currentMerchant.refundDeadline = deadline.toISOString();
+
+                        await supabase
+                            .from('merchants')
+                            .update({ plan_type: planName, subscription_date: now.toISOString(), refund_deadline: deadline.toISOString() })
+                            .eq('id', currentMerchant.id);
+
+                        localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
+                        alert(`🎉 Paiement FedaPay approuvé ! Votre Pass ${planName} est désormais actif.`);
+                        showDashboard();
+                    } else {
+                        alert("Transaction non complétée.");
+                    }
+                }
+            }).open();
+        };
+
+        window.handleImageFileSelect = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxWidth = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                };
+            };
+        };
+
+        window.handleAddProduct = async function(e) {
+            e.preventDefault();
+            if (!currentImageBase64) {
+                alert("Veuillez sélectionner une photo.");
+                return;
+            }
+
+            const productData = {
+                title: document.getElementById('prod-title').value,
+                price: parseInt(document.getElementById('prod-price').value),
+                category: document.getElementById('prod-category').value,
+                image: currentImageBase64,
+                description: document.getElementById('prod-desc').value
+            };
+
+            await publishProductToSupabase(productData);
+            closeAddProductModal();
+        };
+
+        function showDashboard() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('dashboard-section').classList.remove('hidden');
+            document.getElementById('header-user-actions').classList.remove('hidden');
+        }
+
+        window.openAddProductModal = () => document.getElementById('add-product-modal').classList.remove('hidden');
+        window.closeAddProductModal = () => document.getElementById('add-product-modal').classList.add('hidden');
+        window.logoutMerchant = () => { localStorage.removeItem('sb_merchant_session'); location.reload(); };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const stored = localStorage.getItem('sb_merchant_session');
+            if (stored) {
+                currentMerchant = JSON.parse(stored);
+                showDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

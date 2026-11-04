@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>SupplyBox Togo - Achats & Bonnes Affaires à Lomé</title>
+    <!-- Tailwind CSS & Phosphor Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet.js (Carte Interactive OpenStreetMap) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                        accent: { 500: '#f97316', 600: '#ea580c' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .logo { width: 150px; height: 50px; object-fit: contain; display: block; }
+        #map { z-index: 10; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-full pb-20 md:pb-8 selection:bg-brand-500 selection:text-white">
+
+    <!-- Header Sticky -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <img src="logo-supplybox.png" alt="SupplyBox" class="logo">
+                    <div>
+                        <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-1.5">
+                            SupplyBox <span class="text-xs bg-brand-500/20 text-brand-500 border border-brand-500/30 px-1.5 py-0.5 rounded-full font-semibold">TG</span>
+                        </h1>
+                        <p class="text-xs text-slate-400">Le marché direct de Lomé</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <a href="supplybox_merchant_app.html" class="flex items-center gap-1.5 bg-brand-600 hover:bg-brand-500 text-white px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-md shadow-brand-600/20">
+                        <i class="ph-bold ph-storefront text-base"></i>
+                        <span>Espace Marchand</span>
+                    </a>
+
+                    <button id="push-btn" onclick="togglePushNotifications()" class="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold transition-all">
+                        <i id="push-icon" class="ph-bold ph-bell-simple text-amber-400 text-base"></i>
+                        <span id="push-text" class="hidden sm:inline">Alertes VIP</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative">
+                <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                <input type="text" id="search-input" oninput="filterProducts()" placeholder="Rechercher un produit, un quartier, une boutique..." class="w-full bg-slate-800/90 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-brand-500 transition-all">
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-4 space-y-6">
+
+        <!-- Carte Interactive des Boutiques à Lomé -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                    <i class="ph-bold ph-map-trifold text-brand-500"></i> Localisation des Boutiques (Lomé)
+                </h2>
+                <span class="text-xs text-slate-400">Cliquez sur un marqueur</span>
+            </div>
+            <div id="map" class="w-full h-64 rounded-2xl border border-slate-800 shadow-xl overflow-hidden"></div>
+        </section>
+
+        <!-- Offres Flash VIP -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                    <i class="ph-fill ph-lightning text-amber-400"></i> Offres Flash VIP du Jour
+                </h2>
+                <span class="text-xs text-slate-400">Marchands Boostés</span>
+            </div>
+            <div id="vip-carousel" class="flex gap-3 overflow-x-auto no-scrollbar pb-2 scroll-smooth"></div>
+        </section>
+
+        <!-- Filtres Quartier & Catégorie -->
+        <section class="space-y-3">
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                <span class="text-xs text-slate-400 flex items-center gap-1 whitespace-nowrap"><i class="ph-bold ph-map-pin"></i> Quartier :</span>
+                <div id="quarter-filters" class="flex items-center gap-2"></div>
+            </div>
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1" id="category-filters"></div>
+        </section>
+
+        <!-- Grille de Produits -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="ph-bold ph-storefront text-brand-500"></i> Articles disponibles
+                    <span id="product-count" class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-normal">0</span>
+                </h2>
+            </div>
+            <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4"></div>
+            
+            <div id="empty-state" class="hidden text-center py-12 space-y-3">
+                <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-500">
+                    <i class="ph-bold ph-package-open text-3xl"></i>
+                </div>
+                <p class="text-slate-300 font-medium text-sm">Aucun produit ne correspond à votre recherche.</p>
+                <button onclick="resetFilters()" class="text-xs text-brand-500 underline hover:text-brand-400">Réinitialiser les filtres</button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="max-w-6xl mx-auto px-4 py-6 border-t border-slate-800 text-center text-xs text-slate-500 space-y-1">
+        <p>SupplyBox Togo © 2026 - Plateforme E-commerce pour Marchands à Lomé</p>
+        <p>Support Officiel : <a href="https://wa.me/22892485866" class="text-brand-400 underline">+228 92 48 58 66</a> | Email : <a href="mailto:devjunior33@gmail.com" class="text-slate-400 underline">devjunior33@gmail.com</a></p>
+    </footer>
+
+    <!-- Logique App & Carte -->
+    <script type="module">
+        import { fetchProductsFromSupabase } from './app.js';
+
+        let productsData = [];
+        let selectedQuarter = "Tous";
+        let selectedCategory = "Toutes";
+        let map, markersGroup;
+
+        const QUARTERS = ["Tous", "Déckon", "Adidogomé", "Hedzranawoé", "Tokoin", "Agbalépédou", "Kodjoviakopé", "Bè"];
+        const CATEGORIES = ["Toutes", "Électronique", "Mode & Vêtements", "Maison & Électroménager", "Beauté & Santé"];
+
+        const QUARTER_COORDS = {
+            "Déckon": [6.1256, 1.2158],
+            "Adidogomé": [6.1850, 1.1820],
+            "Hedzranawoé": [6.1520, 1.2400],
+            "Tokoin": [6.1370, 1.2250],
+            "Agbalépédou": [6.1910, 1.2150],
+            "Kodjoviakopé": [6.1280, 1.1920],
+            "Bè": [6.1260, 1.2480]
+        };
+
+        function initMap() {
+            map = L.map('map').setView([6.1319, 1.2228], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap SupplyBox'
+            }).addTo(map);
+            markersGroup = L.layerGroup().addTo(map);
+        }
+
+        window.updateMapMarkers = function(products) {
+            if (!map) return;
+            markersGroup.clearLayers();
+
+            products.forEach(p => {
+                const pos = QUARTER_COORDS[p.quarter] || [6.1319, 1.2228];
+                const marker = L.marker(pos);
+                marker.bindPopup(`
+                    <div style="font-family: sans-serif; font-size: 12px; color: #0f172a;">
+                        <strong>${p.merchant}</strong> (${p.quarter})<br>
+                        <span>${p.title} - <strong>${new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</strong></span><br>
+                        <a href="https://wa.me/228${p.whatsapp}" target="_blank" style="color: #16a34a; font-weight: bold;">Commander WhatsApp</a>
+                    </div>
+                `);
+                markersGroup.addLayer(marker);
+            });
+        }
+
+        window.renderVIPCarousel = function(data) {
+            productsData = data || productsData;
+            const carousel = document.getElementById('vip-carousel');
+            const vip = productsData.filter(p => p.merchantType === 'VIP');
+            carousel.innerHTML = vip.map(p => `
+                <div class="min-w-[240px] bg-slate-800 border border-amber-500/30 p-2.5 rounded-2xl flex gap-3 items-center">
+                    <img src="${p.image}" class="w-16 h-16 rounded-xl object-cover">
+                    <div class="flex-1 min-w-0">
+                        <span class="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full">VIP</span>
+                        <h4 class="text-xs font-bold text-white truncate">${p.title}</h4>
+                        <p class="text-xs font-extrabold text-brand-500">${new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</p>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.filterProducts = function(data) {
+            productsData = data || productsData;
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = productsData.filter(p => {
+                return (selectedQuarter === "Tous" || p.quarter === selectedQuarter) &&
+                       (selectedCategory === "Toutes" || p.category === selectedCategory) &&
+                       (p.title.toLowerCase().includes(query) || p.merchant.toLowerCase().includes(query));
+            });
+
+            document.getElementById('product-count').textContent = filtered.length;
+            const grid = document.getElementById('product-grid');
+            const empty = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden flex flex-col justify-between shadow-lg">
+                    <div class="relative aspect-square bg-slate-950">
+                        <img src="${p.image}" class="w-full h-full object-cover">
+                        <span class="absolute bottom-2 right-2 bg-slate-900/80 text-slate-300 text-[10px] px-2 py-0.5 rounded font-medium">${p.quarter}</span>
+                    </div>
+                    <div class="p-3 space-y-2 flex-1 flex flex-col justify-between">
+                        <div>
+                            <p class="text-[10px] text-slate-400">${p.merchant}</p>
+                            <h3 class="text-xs font-bold text-white line-clamp-2">${p.title}</h3>
+                        </div>
+                        <div class="pt-2 border-t border-slate-700 space-y-2">
+                            <p class="text-sm font-black text-brand-500">${new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</p>
+                            <a href="https://wa.me/228${p.whatsapp}?text=Bonjour, intéressé par ${encodeURIComponent(p.title)} vu sur SupplyBox Togo." target="_blank" class="w-full bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 shadow">
+                                <i class="ph-bold ph-whatsapp-logo text-base"></i> Commander
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.setQuarter = function(q) { selectedQuarter = q; renderFilters(); filterProducts(); };
+        window.setCategory = function(c) { selectedCategory = c; renderFilters(); filterProducts(); };
+        window.resetFilters = function() { selectedQuarter = "Tous"; selectedCategory = "Toutes"; document.getElementById('search-input').value = ""; renderFilters(); filterProducts(); };
+        window.togglePushNotifications = function() { alert("Alertes VIP Push activées ! Vous recevrez les notifications à Lomé."); };
+
+        function renderFilters() {
+            document.getElementById('quarter-filters').innerHTML = QUARTERS.map(q => `
+                <button onclick="setQuarter('${q}')" class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${selectedQuarter === q ? 'bg-brand-600 text-white shadow' : 'bg-slate-800 text-slate-300'}">${q}</button>
+            `).join('');
+
+            document.getElementById('category-filters').innerHTML = CATEGORIES.map(c => `
+                <button onclick="setCategory('${c}')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${selectedCategory === c ? 'bg-accent-500 text-white shadow' : 'bg-slate-800 text-slate-300'}">${c}</button>
+            `).join('');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            renderFilters();
+            fetchProductsFromSupabase();
+        });
+    </script>
+</body>
+</html>
