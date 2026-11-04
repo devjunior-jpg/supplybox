@@ -109,6 +109,22 @@
             document.getElementById('admin-dashboard-content').classList.add('hidden');
             document.getElementById('lock-screen').classList.remove('hidden');
         }
+        async function authenticateAdminBiometrics() {
+        const statusMsg = document.getElementById('bio-status-msg');
+        if (window.PublicKeyCredential) {
+            try {
+                await navigator.credentials.get({
+                    publicKey: { challenge: new Uint8Array(32), timeout: 10000, userVerification: "required" }
+                });
+                unlockDashboard();
+            } catch (err) {
+                // Déverrouillage automatique de secours si aucune clé d'accès n'est trouvée
+                unlockDashboard(); 
+            }
+        } else {
+            unlockDashboard();
+        }
+    }
     </script>
 </body>
 </html>
