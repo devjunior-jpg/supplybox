@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>SupplyBox Togo - Politique de Confidentialité</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { 500: '#22c55e', 600: '#16a34a' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans p-4 sm:p-8 leading-relaxed selection:bg-brand-500 selection:text-white">
+
+    <div class="max-w-4xl mx-auto space-y-6 bg-slate-900 p-6 sm:p-10 rounded-3xl border border-slate-800 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center font-black text-white text-xl">
+                    SB
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black text-white">Politique de Confidentialité</h1>
+                    <p class="text-xs text-slate-400">Protection & Sécurité des données à Lomé</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-slate-300 font-semibold transition">← Accueil</a>
+        </div>
+        
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-brand-500 flex items-center gap-2">
+                <i class="ph-bold ph-database"></i> 1. Données Collectées
+            </h2>
+            <p class="text-sm text-slate-300">
+                Dans le cadre de l'utilisation de SupplyBox Togo, nous collectons strictement les données nécessaires au bon fonctionnement de la plateforme :
+            </p>
+            <ul class="list-disc list-inside text-sm text-slate-300 space-y-1 pl-2">
+                <li><strong class="text-white">Informations Marchands :</strong> Nom de boutique, numéro WhatsApp commercial, quartier et coordonnées GPS facultatives.</li>
+                <li><strong class="text-white">Catalogues Produits :</strong> Titres, prix, catégories, descriptions et images d'articles (compressées en WebP/Base64).</li>
+                <li><strong class="text-white">Données de Paiement :</strong> Les identifiants de transactions FedaPay pour la validation des Pass de visibilité. Aucune coordonnée bancaire n'est stockée sur nos serveurs.</li>
+            </ul>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-brand-500 flex items-center gap-2">
+                <i class="ph-bold ph-lock-key"></i> 2. Stockage & Sécurité Supabase
+            </h2>
+            <p class="text-sm text-slate-300">
+                Vos données sont hébergées et synchronisées en temps réel via l'infrastucture cloud sécurisée <strong class="text-white">Supabase</strong>. Les vérifications de paiement sensibles sont exécutées de manière chiffrée sur des serveurs distants via des Edge Functions privées (protégées par clé secrète `FEDAPAY_SECRET_KEY`), garantissant la protection totale contre la fraude.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-brand-500 flex items-center gap-2">
+                <i class="ph-bold ph-share-network"></i> 3. Partage & Utilisation des Données
+            </h2>
+            <p class="text-sm text-slate-300">
+                SupplyBox Togo s'engage à ne jamais revendre ni céder vos informations personnelles à des tiers. Les numéros WhatsApp renseignés par les vendeurs sont uniquement utilisés pour permettre aux acheteurs d'Initier les commandes de gré à gré.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-brand-500 flex items-center gap-2">
+                <i class="ph-bold ph-user-gear"></i> 4. Vos Droits & Modification
+            </h2>
+            <p class="text-sm text-slate-300">
+                Chaque marchand conserve un contrôle total sur ses articles (ajout, modification, suppression). Pour toute demande de suppression définitive de compte ou de retrait de boutique, contactez l'administration au <a href="https://wa.me/22892485866" class="text-brand-400 underline font-bold">+228 92 48 58 66</a>.
+            </p>
+        </section>
+
+        <div class="border-t border-slate-800 pt-4 text-center text-xs text-slate-500">
+            Dernière mise à jour : Octobre 2026 — SupplyBox Togo
+        </div>
+    </div>
+
+</body>
+</html>

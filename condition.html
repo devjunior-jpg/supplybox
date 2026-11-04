@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <title>SupplyBox Togo - Manuel & Conditions d'Utilisation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: { 500: '#22c55e', 600: '#16a34a' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans p-4 sm:p-8 leading-relaxed selection:bg-brand-500 selection:text-white">
+
+    <div class="max-w-4xl mx-auto space-y-6 bg-slate-900 p-6 sm:p-10 rounded-3xl border border-slate-800 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-600 rounded-xl flex items-center justify-center font-black text-white text-xl">
+                    SB
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black text-white">Manuel & Conditions d'Utilisation</h1>
+                    <p class="text-xs text-slate-400">SupplyBox Togo — Plateforme E-Commerce PWA à Lomé</p>
+                </div>
+            </div>
+            <a href="index.html" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded-xl text-slate-300 font-semibold transition">← Accueil</a>
+        </div>
+        
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-brand-500 flex items-center gap-2">
+                <i class="ph-bold ph-info"></i> 1. Présentation & Objectif
+            </h2>
+            <p class="text-sm text-slate-300">
+                SupplyBox Togo est une Progressive Web App (PWA) conçue pour dynamiser le commerce local à Lomé (Déckon, Adidogomé, Hedzranawoé, Tokoin, Agbalépédou, Bè, Kodjoviakopé). Elle permet aux acheteurs de trouver des articles géolocalisés et de contacter directement les vendeurs via WhatsApp, tout en offrant aux marchands des outils de visibilité renforcée.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-brand-500 flex items-center gap-2">
+                <i class="ph-bold ph-storefront"></i> 2. Inscription & Gestion Boutique
+            </h2>
+            <p class="text-sm text-slate-300">
+                L'inscription des marchands nécessite la saisie d'un nom commercial, d'un numéro WhatsApp valide au Togo (+228) et d'un quartier d'implantation. La géolocalisation GPS permet d'épingler la boutique avec précision sur la carte interactive OpenStreetMap.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-brand-500 flex items-center gap-2">
+                <i class="ph-bold ph-credit-card"></i> 3. Pass de Visibilité & Mobile Money (FedaPay)
+            </h2>
+            <p class="text-sm text-slate-300">
+                SupplyBox propose 3 formules d'abonnement :
+            </p>
+            <ul class="list-disc list-inside text-sm text-slate-300 space-y-1 pl-2">
+                <li><strong class="text-white">Pass BASIC (Gratuit) :</strong> Publication d'articles et présence standard sur le marché.</li>
+                <li><strong class="text-blue-400">Pass PRO (3 000 FCFA/mois) :</strong> Badge PRO, priorité d'affichage sur la grille et sur la carte.</li>
+                <li><strong class="text-amber-400">Pass VIP BOOSTER (8 000 FCFA/mois) :</strong> Présence exclusive dans le carrousel VIP et notifications Push ciblées.</li>
+            </ul>
+            <p class="text-xs text-slate-400 mt-1">
+                Les paiements sont traités de manière sécurisée par Mobile Money (TMoney / Flooz) via notre partenaire FedaPay et vérifiés par Edge Function serveur.
+            </p>
+        </section>
+
+        <section class="space-y-2">
+            <h2 class="text-base font-bold text-brand-500 flex items-center gap-2">
+                <i class="ph-bold ph-shield-check"></i> 4. Engagement & Support Officiel
+            </h2>
+            <p class="text-sm text-slate-300">
+                Pour toute assistance technique, réclamation ou contestation de transaction, les utilisateurs et vendeurs peuvent contacter le support officiel SupplyBox au <a href="https://wa.me/22892485866" class="text-brand-400 underline font-bold">+228 92 48 58 66</a> ou par email à <a href="mailto:devjunior33@gmail.com" class="text-slate-400 underline">devjunior33@gmail.com</a>.
+            </p>
+        </section>
+
+        <div class="border-t border-slate-800 pt-4 text-center text-xs text-slate-500">
+            Dernière mise à jour : Octobre 2026 — SupplyBox Togo
+        </div>
+    </div>
+
+</body>
+</html>
