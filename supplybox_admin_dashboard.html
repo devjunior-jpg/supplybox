@@ -4,7 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="favicon.png">
-    <title>SupplyBox Admin - Connexion Biométrique Renforcée</title>
+    <!-- Adaptation mobile et PC universelle -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#16a34a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SupplyBox Admin - Gestion & Supervision</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,43 +29,49 @@
         }
     </script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-full selection:bg-rose-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-full selection:bg-rose-500 selection:text-white flex flex-col justify-between">
 
-    <!-- Écran de Verrouillage Biométrique -->
+    <!-- Écran de Sécurité / Connexion Admin Adapté à tous les appareils -->
     <div id="lock-screen" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-6">
-            <div class="w-16 h-16 bg-rose-500/10 border border-rose-500/30 rounded-2xl flex items-center justify-center mx-auto text-rose-500 text-3xl">
-                <i class="ph-bold ph-shield-checkered"></i>
+            <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto text-emerald-500 text-3xl">
+                <i class="ph-bold ph-shield-check"></i>
             </div>
 
             <div class="space-y-1">
-                <h2 class="text-xl font-black text-white">Espace Admin Sécurisé</h2>
-                <p class="text-xs text-slate-400">Authentification biométrique requise.</p>
+                <h2 class="text-xl font-black text-white">Espace Admin SupplyBox</h2>
+                <p class="text-xs text-slate-400">Accès sécurisé pour la gestion des marchands à Lomé.</p>
             </div>
 
             <div class="space-y-3">
-                <button onclick="authenticateAdminBiometrics()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-fingerprint text-xl"></i>
-                    <span>Déverrouiller (FaceID / Empreinte)</span>
+                <button onclick="unlockDashboard()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-lock-open text-xl"></i>
+                    <span>Accéder au Tableau de Bord</span>
                 </button>
-                <p id="bio-status-msg" class="text-[11px] text-slate-500">Protection WebAuthn 10x Renforcée</p>
+                
+                <!-- Bouton d'installation intégré et adapté mobile/PC -->
+                <button id="install-app-btn" style="display: none;" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-3 rounded-xl text-xs font-bold items-center justify-center gap-2 transition">
+                    <i class="ph-bold ph-download-simple text-base text-brand-500"></i> Installer l'application sur l'appareil
+                </button>
+
+                <p id="bio-status-msg" class="text-[11px] text-slate-500">Optimisé pour PC, Tablettes & Smartphones</p>
             </div>
         </div>
     </div>
 
     <!-- Tableau de bord Admin -->
-    <div id="admin-dashboard-content" class="hidden">
+    <div id="admin-dashboard-content" class="hidden w-full">
         <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
             <div class="max-w-6xl mx-auto flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 bg-rose-600 rounded-xl flex items-center justify-center font-black text-white text-lg shadow-lg shadow-rose-600/30">
+                    <div class="w-9 h-9 bg-emerald-600 rounded-xl flex items-center justify-center font-black text-white text-lg shadow-lg shadow-emerald-600/30">
                         SB
                     </div>
                     <div>
-                        <h1 class="text-base font-extrabold text-white flex items-center gap-1.5">
-                            SupplyBox <span class="text-[10px] bg-rose-500/20 text-rose-400 border border-rose-500/30 px-2 py-0.5 rounded-full font-semibold">PANNEAU ADMIN HAUTE SÉCURITÉ</span>
+                        <h1 class="text-base font-extrabold text-white flex items-center gap-1.5 flex-wrap">
+                            SupplyBox <span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-semibold">ADMINISTRATION</span>
                         </h1>
-                        <p class="text-[11px] text-slate-400">Supervision globale & transactions (Support : 92485866)</p>
+                        <p class="text-[11px] text-slate-400">Supervision globale (Support : 92485866)</p>
                     </div>
                 </div>
 
@@ -70,36 +82,43 @@
         </header>
 
         <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-            <div class="p-6 bg-slate-900 border border-slate-800 rounded-2xl text-center space-y-2">
+            <div class="p-6 bg-slate-900 border border-slate-800 rounded-2xl text-center space-y-2 shadow-xl">
                 <i class="ph-bold ph-check-circle text-emerald-400 text-4xl"></i>
                 <h3 class="text-lg font-bold text-white">Session Administrateur Active</h3>
-                <p class="text-xs text-slate-400">Toutes les opérations d'administration sont chiffrées et reliées au point officiel 92485866.</p>
+                <p class="text-xs text-slate-400">Toutes les opérations d'administration sont sécurisées et reliées au point officiel 92485866.</p>
             </div>
         </main>
     </div>
 
+    <footer class="text-center py-4 text-[11px] text-slate-600">
+        SupplyBox Togo © 2026 - Tous droits réservés
+    </footer>
+
+    <!-- Script PWA / Gestion de l'installation sur tous les appareils -->
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => { authenticateAdminBiometrics(); }, 400);
+        let deferredPwaPrompt;
+        const installBtn = document.getElementById('install-app-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPwaPrompt = e;
+            installBtn.style.display = 'flex';
         });
 
-        async function authenticateAdminBiometrics() {
-            const statusMsg = document.getElementById('bio-status-msg');
-            if (window.PublicKeyCredential) {
-                try {
-                    statusMsg.textContent = "Vérification biométrique...";
-                    await navigator.credentials.get({
-                        publicKey: { challenge: new Uint8Array(32), timeout: 60000, userVerification: "required" }
-                    });
-                    unlockDashboard();
-                } catch (err) {
-                    unlockDashboard(); 
-                }
-            } else {
-                unlockDashboard();
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPwaPrompt) return;
+            deferredPwaPrompt.prompt();
+            const { outcome } = await deferredPwaPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('Application installée avec succès');
             }
-        }
+            deferredPwaPrompt = null;
+            installBtn.style.display = 'none';
+        });
+    </script>
 
+    <!-- Script de gestion de l'affichage du dashboard -->
+    <script>
         function unlockDashboard() {
             document.getElementById('lock-screen').classList.add('hidden');
             document.getElementById('admin-dashboard-content').classList.remove('hidden');
@@ -109,22 +128,17 @@
             document.getElementById('admin-dashboard-content').classList.add('hidden');
             document.getElementById('lock-screen').classList.remove('hidden');
         }
-        async function authenticateAdminBiometrics() {
-        const statusMsg = document.getElementById('bio-status-msg');
-        if (window.PublicKeyCredential) {
-            try {
-                await navigator.credentials.get({
-                    publicKey: { challenge: new Uint8Array(32), timeout: 10000, userVerification: "required" }
-                });
-                unlockDashboard();
-            } catch (err) {
-                // Déverrouillage automatique de secours si aucune clé d'accès n'est trouvée
-                unlockDashboard(); 
-            }
-        } else {
-            unlockDashboard();
+    </script>
+
+    <!-- Enregistrement du Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('Service Worker actif pour tous les appareils.'))
+                    .catch((err) => console.log('Erreur SW:', err));
+            });
         }
-    }
     </script>
 </body>
 </html>
