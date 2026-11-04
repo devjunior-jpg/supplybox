@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#16a34a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>SupplyBox Marchand - Espace Vendeur Togo</title>
-    <!-- Tailwind CSS CDN -->
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- SDK FedaPay Officiel -->
     <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 
     <script>
@@ -19,19 +21,10 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                        },
-                        accent: {
-                            500: '#f97316',
-                            600: '#ea580c',
-                        }
+                        brand: { 500: '#22c55e', 600: '#16a34a', 700: '#15803d' },
+                        accent: { 500: '#f97316', 600: '#ea580c' }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
             }
         }
@@ -44,7 +37,6 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-full pb-12 selection:bg-brand-500 selection:text-white">
 
-    <!-- Header App Marchand -->
     <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
         <div class="max-w-4xl mx-auto flex items-center justify-between">
             <div class="flex items-center gap-2.5">
@@ -57,7 +49,6 @@
                 </div>
             </div>
 
-            <!-- Profile Info / Logout -->
             <div id="header-user-actions" class="hidden flex items-center gap-2">
                 <span id="merchant-status-badge" class="text-[10px] font-bold px-2.5 py-1 rounded-full border"></span>
                 <button onclick="logoutMerchant()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 p-2 rounded-xl transition">
@@ -67,10 +58,8 @@
         </div>
     </header>
 
-    <!-- Main Container -->
     <main class="max-w-4xl mx-auto px-4 py-6">
 
-        <!-- 1. FORMULAIRE D'INSCRIPTION / CONNEXION AVEC AJOUT DE LIEU ET GPS -->
         <section id="auth-section" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
             <div class="text-center space-y-1">
                 <h2 class="text-xl font-bold text-white">Rejoignez SupplyBox Togo</h2>
@@ -85,10 +74,9 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Numéro WhatsApp Commercial (+228) *</label>
-                    <input type="tel" id="reg-whatsapp" required placeholder="Ex: 90000000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                    <input type="tel" id="reg-whatsapp" required placeholder="Ex: 92485866" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-500">
                 </div>
 
-                <!-- AJOUTER UN LIEU / QUARTIER ET INSTALLER LA LOCALISATION GPS -->
                 <div class="space-y-2">
                     <label class="block text-xs font-semibold text-slate-300">Quartier ou Lieu de la Boutique (Lomé) *</label>
                     <div class="flex gap-2">
@@ -101,7 +89,6 @@
                     <p id="geo-status" class="text-[10px] text-slate-500">Saisissez votre quartier ou cliquez sur GPS pour installer votre position sur la carte.</p>
                 </div>
 
-                <!-- Coordonnées GPS cachées -->
                 <input type="hidden" id="reg-lat" value="6.1319">
                 <input type="hidden" id="reg-lng" value="1.2228">
 
@@ -112,15 +99,10 @@
             </form>
         </section>
 
-        <!-- 2. DASHBOARD MARCHAND -->
         <div id="dashboard-section" class="hidden space-y-6">
 
-            <!-- Banner Statut Abonnement & Garantie 7 Jours -->
-            <div id="subscription-banner" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
-                <!-- Content injecté par JS -->
-            </div>
+            <div id="subscription-banner" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl"></div>
 
-            <!-- Grille des Pass / Abonnements (FedaPay) -->
             <section class="space-y-3">
                 <div class="flex items-center justify-between">
                     <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
@@ -130,7 +112,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Offre Gratuite -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3">
                         <div>
                             <span class="text-xs font-bold text-slate-400">PASS BASIC</span>
@@ -140,7 +121,6 @@
                         <button disabled class="w-full bg-slate-800 text-slate-500 text-xs font-bold py-2.5 rounded-xl cursor-not-allowed">Formule Actuelle</button>
                     </div>
 
-                    <!-- Offre PRO -->
                     <div class="bg-slate-900 border border-blue-500/40 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden">
                         <span class="absolute top-3 right-3 bg-blue-500/20 text-blue-400 border border-blue-500/40 text-[10px] font-bold px-2 py-0.5 rounded-full">POPULAIRE</span>
                         <div>
@@ -151,7 +131,6 @@
                         <button onclick="payWithFedaPay('PRO', 3000)" class="w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-lg shadow-blue-600/30">Souscrire PRO</button>
                     </div>
 
-                    <!-- Offre VIP Booster -->
                     <div class="bg-gradient-to-b from-slate-900 to-amber-950/30 border border-amber-500/50 rounded-2xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden">
                         <span class="absolute top-3 right-3 bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full">BOOSTER MAX</span>
                         <div>
@@ -164,7 +143,6 @@
                 </div>
             </section>
 
-            <!-- Gestion des Articles -->
             <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                     <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -175,15 +153,12 @@
                     </button>
                 </div>
 
-                <div id="merchant-products-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <!-- Injecté par JS -->
-                </div>
+                <div id="merchant-products-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
             </section>
         </div>
 
     </main>
 
-    <!-- MODAL AJOUT D'ARTICLE AVEC COMPRESSION D'IMAGE -->
     <div id="add-product-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -241,11 +216,12 @@
         </div>
     </div>
 
-    <!-- JavaScript Logique Marchand -->
-    <script>
+    <script type="module">
+        import { supabase, publishProductToSupabase, OFFICIAL_SUPPORT_PHONE } from './app.js';
+
         let currentMerchant = null;
         let currentImageBase64 = null;
-        const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_IpN_cJ7ZoxgZT4AVNoLzLvIF'; // Votre clé FedaPay
+        const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_IpN_cJ7ZoxgZT4AVNoLzLvI';
 
         window.addEventListener('DOMContentLoaded', () => {
             const stored = localStorage.getItem('sb_merchant_session');
@@ -255,8 +231,7 @@
             }
         });
 
-        // Fonction GPS pour installer la position et le lieu
-        function getDeviceLocation() {
+        window.getDeviceLocation = function() {
             const statusEl = document.getElementById('geo-status');
             if (navigator.geolocation) {
                 statusEl.textContent = "Recherche de votre position GPS...";
@@ -266,19 +241,19 @@
                         const lng = position.coords.longitude;
                         document.getElementById('reg-lat').value = lat;
                         document.getElementById('reg-lng').value = lng;
-                        statusEl.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="ph-bold ph-check"></i> Position GPS installée avec succès (${lat.toFixed(4)}, ${lng.toFixed(4)}) !</span>`;
+                        statusEl.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="ph-bold ph-check"></i> Position GPS installée (${lat.toFixed(4)}, ${lng.toFixed(4)}) !</span>`;
                     },
-                    (error) => {
-                        statusEl.innerHTML = `<span class="text-rose-400">Impossible d'obtenir la position GPS. Saisissez votre quartier manuellement.</span>`;
+                    () => {
+                        statusEl.innerHTML = `<span class="text-rose-400">GPS indisponible. Saisissez votre quartier manuellement.</span>`;
                     },
                     { timeout: 10000 }
                 );
             } else {
                 alert("La géolocalisation n'est pas supportée par votre navigateur.");
             }
-        }
+        };
 
-        function handleAuth(e) {
+        window.handleAuth = async function(e) {
             e.preventDefault();
             const store = document.getElementById('reg-store').value;
             const whatsapp = document.getElementById('reg-whatsapp').value;
@@ -286,35 +261,53 @@
             const lat = parseFloat(document.getElementById('reg-lat').value);
             const lng = parseFloat(document.getElementById('reg-lng').value);
 
+            // Enregistrement dans Supabase de la table merchants
+            const { data, error } = await supabase
+                .from('merchants')
+                .insert([{
+                    store_name: store,
+                    whatsapp: whatsapp,
+                    quarter: quarter,
+                    latitude: lat,
+                    longitude: lng,
+                    plan_type: 'FREE',
+                    official_contact: OFFICIAL_SUPPORT_PHONE
+                }])
+                .select()
+                .single();
+
+            if (error) {
+                alert("Erreur lors de la création du compte marchand : " + error.message);
+                return;
+            }
+
             currentMerchant = {
-                id: 'merch_' + Math.random().toString(36).substr(2, 9),
-                storeName: store,
-                whatsapp: whatsapp,
-                quarter: quarter,
-                latitude: lat,
-                longitude: lng,
-                plan: 'FREE',
+                id: data.id,
+                storeName: data.store_name,
+                whatsapp: data.whatsapp,
+                quarter: data.quarter,
+                plan: data.plan_type,
                 products: []
             };
 
             localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
             showDashboard();
-        }
+        };
 
-        function logoutMerchant() {
+        window.logoutMerchant = function() {
             localStorage.removeItem('sb_merchant_session');
             currentMerchant = null;
             location.reload();
-        }
+        };
 
-        function showDashboard() {
+        window.showDashboard = function() {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('dashboard-section').classList.remove('hidden');
             document.getElementById('header-user-actions').classList.remove('hidden');
             renderMerchantHeader();
             renderSubscriptionBanner();
-            renderMerchantProducts();
-        }
+            loadMerchantProducts();
+        };
 
         function renderMerchantHeader() {
             const badge = document.getElementById('merchant-status-badge');
@@ -348,8 +341,7 @@
             }
         }
 
-        // Paiement Réel / Test FedaPay
-        function payWithFedaPay(planName, amount) {
+        window.payWithFedaPay = function(planName, amount) {
             if (!currentMerchant) return;
 
             FedaPay.init({
@@ -366,21 +358,42 @@
                         country: 'tg'
                     }
                 },
-                onComplete: function(response) {
+                onComplete: async function(response) {
                     if (response.reason === FedaPay.TRANSACTION_APPROVED) {
-                        currentMerchant.plan = planName;
-                        localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-                        alert(`🎉 Paiement FedaPay validé ! Votre Pass ${planName} est désormais actif.`);
-                        showDashboard();
+                        const transactionId = response.transaction.id;
+                        
+                        try {
+                            const res = await fetch('https://btkvexlwkxobuylycnug.supabase.co/functions/v1/verify-fedapay', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    transactionId: transactionId,
+                                    merchantId: currentMerchant.id,
+                                    planName: planName
+                                })
+                            });
+
+                            const result = await res.json();
+                            if (result.success) {
+                                currentMerchant.plan = planName;
+                                localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
+                                alert(`🎉 Paiement validé par le serveur ! Votre Pass ${planName} est désormais actif.`);
+                                showDashboard();
+                            } else {
+                                alert("Erreur lors de la validation : " + (result.error || "Inconnue"));
+                            }
+                        } catch (err) {
+                            console.error("Erreur Edge Function:", err);
+                            alert("Erreur de communication avec le serveur de vérification.");
+                        }
                     } else {
                         alert("Transaction annulée ou non finalisée.");
                     }
                 }
             }).open();
-        }
+        };
 
-        // Compression d'image
-        function handleImageFileSelect(e) {
+        window.handleImageFileSelect = function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -410,56 +423,54 @@
                     document.getElementById('image-preview-wrapper').classList.remove('hidden');
                 };
             };
-        }
+        };
 
-        function openAddProductModal() {
+        window.openAddProductModal = function() {
             currentImageBase64 = null;
             document.getElementById('image-preview-wrapper').classList.add('hidden');
             document.getElementById('add-product-modal').classList.remove('hidden');
             document.getElementById('add-product-modal').classList.add('flex');
-        }
+        };
 
-        function closeAddProductModal() {
+        window.closeAddProductModal = function() {
             document.getElementById('add-product-modal').classList.add('hidden');
-        }
+        };
 
-        function handleAddProduct(e) {
+        window.handleAddProduct = async function(e) {
             e.preventDefault();
             if (!currentImageBase64) {
                 alert("Veuillez importer une photo compressée pour l'article.");
                 return;
             }
 
-            const newProd = {
-                id: 'prod_' + Math.random().toString(36).substr(2, 9),
+            const success = await publishProductToSupabase({
                 title: document.getElementById('prod-title').value,
                 price: parseInt(document.getElementById('prod-price').value),
                 category: document.getElementById('prod-category').value,
                 image: currentImageBase64,
                 description: document.getElementById('prod-desc').value
-            };
+            });
 
-            currentMerchant.products.push(newProd);
-            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-            closeAddProductModal();
-            renderMerchantProducts();
-            alert("Article publié avec succès sur SupplyBox !");
-        }
+            if (success) {
+                closeAddProductModal();
+                loadMerchantProducts();
+            }
+        };
 
-        function deleteProduct(prodId) {
-            currentMerchant.products = currentMerchant.products.filter(p => p.id !== prodId);
-            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-            renderMerchantProducts();
-        }
+        async function loadMerchantProducts() {
+            const { data, error } = await supabase
+                .from('products')
+                .select('*')
+                .eq('merchant_id', currentMerchant.id)
+                .order('created_at', { ascending: false });
 
-        function renderMerchantProducts() {
             const list = document.getElementById('merchant-products-list');
-            if (currentMerchant.products.length === 0) {
+            if (error || !data || data.length === 0) {
                 list.innerHTML = `<div class="col-span-full text-center py-6 text-slate-500 text-xs">Aucun article publié pour le moment.</div>`;
                 return;
             }
 
-            list.innerHTML = currentMerchant.products.map(p => `
+            list.innerHTML = data.map(p => `
                 <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex gap-3 items-center justify-between">
                     <img src="${p.image}" class="w-14 h-14 rounded-lg object-cover">
                     <div class="flex-1 min-w-0">
@@ -473,6 +484,15 @@
                 </div>
             `).join('');
         }
+
+        window.deleteProduct = async function(prodId) {
+            const { error } = await supabase.from('products').delete().eq('id', prodId);
+            if (error) {
+                alert("Erreur lors de la suppression : " + error.message);
+            } else {
+                loadMerchantProducts();
+            }
+        };
     </script>
 </body>
 </html>
