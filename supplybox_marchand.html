@@ -227,7 +227,7 @@
             const stored = localStorage.getItem('sb_merchant_session');
             if (stored) {
                 currentMerchant = JSON.parse(stored);
-                showDashboard();
+                window.showDashboard();
             }
         });
 
@@ -261,7 +261,6 @@
             const lat = parseFloat(document.getElementById('reg-lat').value);
             const lng = parseFloat(document.getElementById('reg-lng').value);
 
-            // Enregistrement dans Supabase de la table merchants
             const { data, error } = await supabase
                 .from('merchants')
                 .insert([{
@@ -291,7 +290,7 @@
             };
 
             localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-            showDashboard();
+            window.showDashboard();
         };
 
         window.logoutMerchant = function() {
@@ -378,7 +377,7 @@
                                 currentMerchant.plan = planName;
                                 localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
                                 alert(`🎉 Paiement validé par le serveur ! Votre Pass ${planName} est désormais actif.`);
-                                showDashboard();
+                                window.showDashboard();
                             } else {
                                 alert("Erreur lors de la validation : " + (result.error || "Inconnue"));
                             }
@@ -452,7 +451,7 @@
             });
 
             if (success) {
-                closeAddProductModal();
+                window.closeAddProductModal();
                 loadMerchantProducts();
             }
         };
