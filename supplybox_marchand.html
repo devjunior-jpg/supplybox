@@ -60,6 +60,7 @@
 
     <main class="max-w-4xl mx-auto px-4 py-6">
 
+        <!-- SECTION AUTH / INSCRIPTION -->
         <section id="auth-section" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
             <div class="text-center space-y-1">
                 <h2 class="text-xl font-bold text-white">Rejoignez SupplyBox Togo</h2>
@@ -92,13 +93,14 @@
                 <input type="hidden" id="reg-lat" value="6.1319">
                 <input type="hidden" id="reg-lng" value="1.2228">
 
-                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
+                <button type="submit" id="submit-btn" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
                     <i class="ph-bold ph-storefront text-lg"></i>
                     <span>Créer mon compte Vendeur</span>
                 </button>
             </form>
         </section>
 
+        <!-- DASHBOARD MARCHAND -->
         <div id="dashboard-section" class="hidden space-y-6">
 
             <div id="subscription-banner" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl"></div>
@@ -159,6 +161,7 @@
 
     </main>
 
+    <!-- MODAL AJOUT ARTICLE -->
     <div id="add-product-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -195,9 +198,6 @@
                     <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl cursor-pointer bg-slate-950 transition-all p-3 text-center">
                         <i class="ph-bold ph-file-arrow-up text-2xl text-brand-500 mb-1"></i>
                         <span class="text-xs text-slate-300 font-medium">Importer depuis la galerie / photo</span>
-                        <span class="text-[10px] text-emerald-400 mt-1 font-semibold flex items-center gap-1">
-                            <i class="ph-bold ph-lightning"></i> Compression automatique haute vitesse
-                        </span>
                         <input type="file" id="prod-file-input" accept="image/*" onchange="handleImageFileSelect(event)" class="hidden">
                     </label>
 
@@ -216,6 +216,7 @@
         </div>
     </div>
 
+    <!-- SCRIPT PRINCIPAL -->
     <script type="module">
         import { supabase, publishProductToSupabase, OFFICIAL_SUPPORT_PHONE } from './app.js';
 
@@ -226,8 +227,14 @@
         window.addEventListener('DOMContentLoaded', () => {
             const stored = localStorage.getItem('sb_merchant_session');
             if (stored) {
-                currentMerchant = JSON.parse(stored);
-                window.showDashboard();
+                try {
+                    currentMerchant = JSON.parse(stored);
+                    if (currentMerchant && currentMerchant.id) {
+                        showDashboard();
+                    }
+                } catch(e) {
+                    localStorage.removeItem('sb_merchant_session');
+                }
             }
         });
 
@@ -255,42 +262,53 @@
 
         window.handleAuth = async function(e) {
             e.preventDefault();
-            const store = document.getElementById('reg-store').value;
-            const whatsapp = document.getElementById('reg-whatsapp').value;
-            const quarter = document.getElementById('reg-quarter').value;
+            const store = document.getElementById('reg-store').value.trim();
+            const whatsapp = document.getElementById('reg-whatsapp').value.trim();
+            const quarter = document.getElementById('reg-quarter').value.trim();
             const lat = parseFloat(document.getElementById('reg-lat').value);
             const lng = parseFloat(document.getElementById('reg-lng').value);
 
-            const { data, error } = await supabase
-                .from('merchants')
-                .insert([{
-                    store_name: store,
-                    whatsapp: whatsapp,
-                    quarter: quarter,
-                    latitude: lat,
-                    longitude: lng,
-                    plan_type: 'FREE',
-                    official_contact: OFFICIAL_SUPPORT_PHONE
-                }])
-                .select()
-                .single();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Création en cours...";
 
-            if (error) {
-                alert("Erreur lors de la création du compte marchand : " + error.message);
-                return;
+            try {
+                // 1. Insertion sécurisée dans Supabase
+                const { data, error } = await supabase
+                    .from('merchants')
+                    .insert([{
+                        store_name: store,
+                        whatsapp: whatsapp,
+                        quarter: quarter,
+                        latitude: lat,
+                        longitude: lng,
+                        plan_type: 'FREE',
+                        official_contact: OFFICIAL_SUPPORT_PHONE
+                    }])
+                    .select()
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                currentMerchant = {
+                    id: data.id,
+                    storeName: data.store_name,
+                    whatsapp: data.whatsapp,
+                    quarter: data.quarter,
+                    plan: data.plan_type || 'FREE',
+                    products: []
+                };
+
+                localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
+                showDashboard();
+            } catch (err) {
+                console.error("Erreur d'authentification marchand:", err);
+                alert("Impossible de créer le compte : " + (err.message || "Erreur de connexion à Supabase. Vérifiez vos tables."));
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<i class="ph-bold ph-storefront text-lg"></i><span>Créer mon compte Vendeur</span>`;
             }
-
-            currentMerchant = {
-                id: data.id,
-                storeName: data.store_name,
-                whatsapp: data.whatsapp,
-                quarter: data.quarter,
-                plan: data.plan_type,
-                products: []
-            };
-
-            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-            window.showDashboard();
         };
 
         window.logoutMerchant = function() {
@@ -377,7 +395,7 @@
                                 currentMerchant.plan = planName;
                                 localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
                                 alert(`🎉 Paiement validé par le serveur ! Votre Pass ${planName} est désormais actif.`);
-                                window.showDashboard();
+                                showDashboard();
                             } else {
                                 alert("Erreur lors de la validation : " + (result.error || "Inconnue"));
                             }
@@ -438,7 +456,7 @@
         window.handleAddProduct = async function(e) {
             e.preventDefault();
             if (!currentImageBase64) {
-                alert("Veuillez importer une photo compressée pour l'article.");
+                alert("Veuillez importer une photo pour l'article.");
                 return;
             }
 
@@ -451,7 +469,7 @@
             });
 
             if (success) {
-                window.closeAddProductModal();
+                closeAddProductModal();
                 loadMerchantProducts();
             }
         };
