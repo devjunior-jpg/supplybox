@@ -159,147 +159,75 @@
         });
     </script>
 
-    <script type="module">
-        import { fetchProductsFromSupabase, OFFICIAL_SUPPORT_PHONE } from './app.js';
+<script type="module">
+    import { fetchProductsFromSupabase, OFFICIAL_SUPPORT_PHONE } from './app.js';
 
-        let productsData = [];
-        let selectedQuarter = "Tous";
-        let selectedCategory = "Toutes";
-        let map, markersGroup;
+    let productsData = [];
+    let selectedQuarter = "Tous";
+    let selectedCategory = "Toutes";
+    let map, markersGroup;
 
-        const QUARTERS = ["Tous", "Déckon", "Adidogomé", "Hedzranawoé", "Tokoin", "Agbalépédou", "Kodjoviakopé", "Bè"];
-        const CATEGORIES = ["Toutes", "Électronique", "Mode & Vêtements", "Maison & Électroménager", "Beauté & Santé"];
+    const QUARTERS = ["Tous", "Déckon", "Adidogomé", "Hedzranawoé", "Tokoin", "Agbalépédou", "Kodjoviakopé", "Bè"];
+    const CATEGORIES = ["Toutes", "Électronique", "Mode & Vêtements", "Maison & Électroménager", "Beauté & Santé"];
 
-        const QUARTER_COORDS = {
-            "Déckon": [6.1256, 1.2158],
-            "Adidogomé": [6.1850, 1.1820],
-            "Hedzranawoé": [6.1520, 1.2400],
-            "Tokoin": [6.1370, 1.2250],
-            "Agbalépédou": [6.1910, 1.2150],
-            "Kodjoviakopé": [6.1280, 1.1920],
-            "Bè": [6.1260, 1.2480]
-        };
+    const QUARTER_COORDS = {
+        "Déckon": [6.1256, 1.2158],
+        "Adidogomé": [6.1850, 1.1820],
+        "Hedzranawoé": [6.1520, 1.2400],
+        "Tokoin": [6.1370, 1.2250],
+        "Agbalépédou": [6.1910, 1.2150],
+        "Kodjoviakopé": [6.1280, 1.1920],
+        "Bè": [6.1260, 1.2480]
+    };
 
-        function initMap() {
-            map = L.map('map').setView([6.1319, 1.2228], 12);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap SupplyBox',
-                maxZoom: 19
-            }).addTo(map);
-            markersGroup = L.layerGroup().addTo(map);
+    function initMap() {
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) return;
 
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 300);
+        // Évite une double initialisation si la fonction est appelée deux fois
+        if (map) {
+            map.remove();
         }
 
-        window.updateMapMarkers = function(products) {
-            if (!map) return;
-            markersGroup.clearLayers();
+        map = L.map('map').setView([6.1319, 1.2228], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap SupplyBox',
+            maxZoom: 19
+        }).addTo(map);
+        
+        markersGroup = L.layerGroup().addTo(map);
 
-            products.forEach(p => {
-                const pos = QUARTER_COORDS[p.quarter] || [6.1319, 1.2228];
-                const marker = L.marker(pos);
-                const phoneNum = p.whatsapp || OFFICIAL_SUPPORT_PHONE;
-                marker.bindPopup(`
-                    <div style="font-family: sans-serif; font-size: 12px; color: #0f172a;">
-                        <strong>${p.merchant}</strong> (${p.quarter})<br>
-                        <span>${p.title} - <strong>${new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</strong></span><br>
-                        <a href="https://wa.me/228${phoneNum}" target="_blank" style="color: #16a34a; font-weight: bold;">Commander WhatsApp</a>
-                    </div>
-                `);
-                markersGroup.addLayer(marker);
-            });
-        }
+        // Force le rendu des tuiles après le chargement complet du DOM
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 400);
+    }
 
-        window.renderVIPCarousel = function(data) {
-            productsData = data || productsData;
-            const carousel = document.getElementById('vip-carousel');
-            const vip = productsData.filter(p => p.merchantType === 'VIP');
-            
-            if (vip.length === 0) {
-                carousel.innerHTML = `<p class="text-xs text-slate-500 italic py-2">Aucune offre VIP active pour le moment.</p>`;
-                return;
-            }
+    window.updateMapMarkers = function(products) {
+        if (!map) return;
+        markersGroup.clearLayers();
 
-            carousel.innerHTML = vip.map(p => `
-                <div class="min-w-[240px] bg-slate-800 border border-amber-500/30 p-2.5 rounded-2xl flex gap-3 items-center shadow-md">
-                    <img src="${p.image}" class="w-16 h-16 rounded-xl object-cover">
-                    <div class="flex-1 min-w-0">
-                        <span class="text-[10px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full">VIP</span>
-                        <h4 class="text-xs font-bold text-white truncate">${p.title}</h4>
-                        <p class="text-xs font-extrabold text-brand-500">${new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</p>
-                    </div>
+        products.forEach(p => {
+            const pos = QUARTER_COORDS[p.quarter] || [6.1319, 1.2228];
+            const marker = L.marker(pos);
+            const phoneNum = p.whatsapp || OFFICIAL_SUPPORT_PHONE;
+            marker.bindPopup(`
+                <div style="font-family: sans-serif; font-size: 12px; color: #0f172a;">
+                    <strong>${p.merchant}</strong> (${p.quarter})<br>
+                    <span>${p.title} - <strong>${new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</strong></span><br>
+                    <a href="https://wa.me/228${phoneNum}" target="_blank" style="color: #16a34a; font-weight: bold;">Commander WhatsApp</a>
                 </div>
-            `).join('');
-        };
-
-        window.filterProducts = function(data) {
-            productsData = data || productsData;
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = productsData.filter(p => {
-                return (selectedQuarter === "Tous" || p.quarter === selectedQuarter) &&
-                       (selectedCategory === "Toutes" || p.category === selectedCategory) &&
-                       (p.title.toLowerCase().includes(query) || p.merchant.toLowerCase().includes(query));
-            });
-
-            document.getElementById('product-count').textContent = filtered.length;
-            const grid = document.getElementById('product-grid');
-            const empty = document.getElementById('empty-state');
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '';
-                empty.classList.remove('hidden');
-                return;
-            }
-            empty.classList.add('hidden');
-
-            grid.innerHTML = filtered.map(p => {
-                const phoneNum = p.whatsapp || OFFICIAL_SUPPORT_PHONE;
-                return `
-                    <div class="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden flex flex-col justify-between shadow-lg">
-                        <div class="relative aspect-square bg-slate-950">
-                            <img src="${p.image}" class="w-full h-full object-cover">
-                            <span class="absolute bottom-2 right-2 bg-slate-900/80 text-slate-300 text-[10px] px-2 py-0.5 rounded font-medium">${p.quarter}</span>
-                        </div>
-                        <div class="p-3 space-y-2 flex-1 flex flex-col justify-between">
-                            <div>
-                                <p class="text-[10px] text-slate-400">${p.merchant}</p>
-                                <h3 class="text-xs font-bold text-white line-clamp-2">${p.title}</h3>
-                            </div>
-                            <div class="pt-2 border-t border-slate-700 space-y-2">
-                                <p class="text-sm font-black text-brand-500">${new Intl.NumberFormat('fr-FR').format(p.price)} FCFA</p>
-                                <a href="https://wa.me/228${phoneNum}?text=Bonjour, intéressé par ${encodeURIComponent(p.title)} vu sur SupplyBox Togo." target="_blank" class="w-full bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold py-2 rounded-xl flex items-center justify-center gap-1.5 shadow">
-                                    <i class="ph-bold ph-whatsapp-logo text-base"></i> Commander
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        };
-
-        window.setQuarter = function(q) { selectedQuarter = q; renderFilters(); filterProducts(); };
-        window.setCategory = function(c) { selectedCategory = c; renderFilters(); filterProducts(); };
-        window.resetFilters = function() { selectedQuarter = "Tous"; selectedCategory = "Toutes"; document.getElementById('search-input').value = ""; renderFilters(); filterProducts(); };
-        window.togglePushNotifications = function() { alert("Alertes VIP Push activées ! Vous recevrez les notifications à Lomé."); };
-
-        function renderFilters() {
-            document.getElementById('quarter-filters').innerHTML = QUARTERS.map(q => `
-                <button onclick="setQuarter('${q}')" class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${selectedQuarter === q ? 'bg-brand-600 text-white shadow' : 'bg-slate-800 text-slate-300'}">${q}</button>
-            `).join('');
-
-            document.getElementById('category-filters').innerHTML = CATEGORIES.map(c => `
-                <button onclick="setCategory('${c}')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${selectedCategory === c ? 'bg-accent-500 text-white shadow' : 'bg-slate-800 text-slate-300'}">${c}</button>
-            `).join('');
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initMap();
-            renderFilters();
-            fetchProductsFromSupabase();
+            `);
+            markersGroup.addLayer(marker);
         });
-    </script>
+    }
+
+    // Initialisation au chargement de la fenêtre
+    window.addEventListener('load', () => {
+        initMap();
+        fetchProductsFromSupabase();
+    });
+</script>
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
