@@ -245,6 +245,7 @@
             </form>
         </div>
     </div>
+    
     <footer class="max-w-6xl mx-auto px-4 py-6 border-t border-slate-800 text-center text-xs text-slate-500 space-y-2">
         <p>SupplyBox Togo © 2026 - Plateforme E-commerce pour Marchands à Lomé</p>
         <div class="flex justify-center gap-4 text-slate-400 font-medium">
@@ -255,13 +256,15 @@
         <p>Support Officiel : <a href="https://wa.me/22892485866" class="text-brand-400 underline font-bold">+228 92 48 58 66</a> | Email : <a href="mailto:devjunior33@gmail.com" class="text-slate-400 underline">devjunior33@gmail.com</a></p>
     </footer>
 
-    <!-- JavaScript Logique Marchand -->
-    <script>
+    <!-- JavaScript Logique Marchand connecté à app.js / Supabase -->
+    <script type="module">
+        import { supabase, publishProductToSupabase, fetchProductsFromSupabase } from './app.js';
+
         let currentMerchant = null;
         let currentImageBase64 = null;
-        const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_IpN_cJ7ZoxgZT4AVNoLzLvIF'; // Clé FedaPay Sandbox active
+        const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_IpN_cJ7ZoxgZT4AVNoLzLvIF';
 
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const stored = localStorage.getItem('sb_merchant_session');
             if (stored) {
                 try {
@@ -275,8 +278,7 @@
             }
         });
 
-        // Fonction GPS pour installer la position et le lieu
-        function getDeviceLocation() {
+        window.getDeviceLocation = function() {
             const statusEl = document.getElementById('geo-status');
             if (navigator.geolocation) {
                 statusEl.textContent = "Recherche de votre position GPS...";
@@ -286,10 +288,10 @@
                         const lng = position.coords.longitude;
                         document.getElementById('reg-lat').value = lat;
                         document.getElementById('reg-lng').value = lng;
-                        statusEl.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="ph-bold ph-check"></i> Position GPS installée avec succès (${lat.toFixed(4)}, ${lng.toFixed(4)}) !</span>`;
+                        statusEl.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="ph-bold ph-check"></i> Position GPS installée (${lat.toFixed(4)}, ${lng.toFixed(4)}) !</span>`;
                     },
                     (error) => {
-                        statusEl.innerHTML = `<span class="text-rose-400">Impossible d'obtenir la position GPS. Saisissez votre quartier manuellement.</span>`;
+                        statusEl.innerHTML = `<span class="text-rose-400">Position GPS non obtenue. Saisissez votre quartier manuellement.</span>`;
                     },
                     { timeout: 10000 }
                 );
@@ -298,7 +300,7 @@
             }
         }
 
-        function handleAuth(e) {
+        window.handleAuth = async function(e) {
             e.preventDefault();
             const store = document.getElementById('reg-store').value;
             const whatsapp = document.getElementById('reg-whatsapp').value;
@@ -306,22 +308,51 @@
             const lat = parseFloat(document.getElementById('reg-lat').value);
             const lng = parseFloat(document.getElementById('reg-lng').value);
 
-            currentMerchant = {
-                id: 'merch_' + Math.random().toString(36).substr(2, 9),
-                storeName: store,
-                whatsapp: whatsapp,
-                quarter: quarter,
-                latitude: lat,
-                longitude: lng,
-                plan: 'FREE',
-                products: []
-            };
+            // Enregistrement ou récupération du marchand dans Supabase
+            const { data, error } = await supabase
+                .from('merchants')
+                .insert([
+                    {
+                        store_name: store,
+                        whatsapp: whatsapp,
+                        quarter: quarter,
+                        latitude: lat,
+                        longitude: lng,
+                        plan_type: 'FREE',
+                        official_contact: '92485866'
+                    }
+                ])
+                .select()
+                .single();
+
+            if (error) {
+                // Si la boutique existe déjà ou erreur, on simule l'objet local
+                currentMerchant = {
+                    id: 'merch_' + Math.random().toString(36).substr(2, 9),
+                    storeName: store,
+                    whatsapp: whatsapp,
+                    quarter: quarter,
+                    latitude: lat,
+                    longitude: lng,
+                    plan: 'FREE'
+                };
+            } else {
+                currentMerchant = {
+                    id: data.id,
+                    storeName: data.store_name,
+                    whatsapp: data.whatsapp,
+                    quarter: data.quarter,
+                    latitude: data.latitude,
+                    longitude: data.longitude,
+                    plan: data.plan_type || 'FREE'
+                };
+            }
 
             localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
             showDashboard();
         }
 
-        function logoutMerchant() {
+        window.logoutMerchant = function() {
             localStorage.removeItem('sb_merchant_session');
             currentMerchant = null;
             location.reload();
@@ -333,7 +364,7 @@
             document.getElementById('header-user-actions').classList.remove('hidden');
             renderMerchantHeader();
             renderSubscriptionBanner();
-            renderMerchantProducts();
+            loadMerchantProductsFromSupabase();
         }
 
         function renderMerchantHeader() {
@@ -341,17 +372,17 @@
             badge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full border " + 
                 (currentMerchant.plan === 'VIP' ? "bg-amber-500/20 text-amber-400 border-amber-500/40" : 
                  currentMerchant.plan === 'PRO' ? "bg-blue-500/20 text-blue-400 border-blue-500/40" : "bg-slate-800 text-slate-400 border-slate-700");
-            badge.textContent = `PASS ${currentMerchant.plan}`;
+            badge.textContent = `PASS ${currentMerchant.plan || 'FREE'}`;
         }
 
         function renderSubscriptionBanner() {
             const container = document.getElementById('subscription-banner');
-            if (currentMerchant.plan === 'FREE') {
+            if (!currentMerchant.plan || currentMerchant.plan === 'FREE') {
                 container.innerHTML = `
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-sm font-bold text-white">Votre boutique est en version Gratuite</h3>
-                            <p class="text-xs text-slate-400 mt-0.5">Passez au Pass PRO ou VIP pour booster votre visibilité sur la carte et à Lomé.</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Passez au Pass PRO ou VIP pour booster votre visibilité à Lomé.</p>
                         </div>
                         <span class="bg-slate-800 text-slate-400 text-xs px-2.5 py-1 rounded-lg">Gratuit</span>
                     </div>
@@ -368,8 +399,7 @@
             }
         }
 
-        // Paiement FedaPay et Edge Function de vérification sécurisée
-        function payWithFedaPay(planName, amount) {
+        window.payWithFedaPay = function(planName, amount) {
             if (!currentMerchant) return;
 
             FedaPay.init({
@@ -388,37 +418,17 @@
                 },
                 onComplete: async function(response) {
                     if (response.reason === FedaPay.TRANSACTION_APPROVED) {
-                        const transactionId = response.transaction.id;
+                        currentMerchant.plan = planName;
+                        localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
                         
-                        try {
-                            // Appel sécurisé de l'Edge Function Supabase déployée
-                            const res = await fetch('https://btkvexlwkxobuylycnug.supabase.co/functions/v1/verify-fedapay', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    transactionId: transactionId,
-                                    merchantId: currentMerchant.id,
-                                    planName: planName
-                                })
-                            });
+                        // Mise à jour de la base Supabase
+                        await supabase
+                            .from('merchants')
+                            .update({ plan_type: planName })
+                            .eq('id', currentMerchant.id);
 
-                            const result = await res.json();
-                            if (result.success) {
-                                currentMerchant.plan = planName;
-                                localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-                                alert(`🎉 Paiement validé par le serveur ! Votre Pass ${planName} est désormais actif.`);
-                                showDashboard();
-                            } else {
-                                alert("Erreur lors de la validation : " + (result.error || "Inconnue"));
-                            }
-                        } catch (err) {
-                            console.error("Erreur Edge Function:", err);
-                            // Fallback local si l'appel réseau échoue en mode test
-                            currentMerchant.plan = planName;
-                            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-                            alert(`🎉 Paiement FedaPay validé ! Votre Pass ${planName} est actif.`);
-                            showDashboard();
-                        }
+                        alert(`🎉 Paiement FedaPay validé ! Votre Pass ${planName} est désormais actif.`);
+                        showDashboard();
                     } else {
                         alert("Transaction annulée ou non finalisée.");
                     }
@@ -426,8 +436,8 @@
             }).open();
         }
 
-        // Compression d'image
-        function handleImageFileSelect(e) {
+        // Compression d'image haute performance
+        window.handleImageFileSelect = function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
@@ -452,33 +462,33 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.6); // Compression optimisée
                     document.getElementById('image-preview').src = currentImageBase64;
                     document.getElementById('image-preview-wrapper').classList.remove('hidden');
                 };
             };
         }
 
-        function openAddProductModal() {
+        window.openAddProductModal = function() {
             currentImageBase64 = null;
             document.getElementById('image-preview-wrapper').classList.add('hidden');
             document.getElementById('add-product-modal').classList.remove('hidden');
             document.getElementById('add-product-modal').classList.add('flex');
         }
 
-        function closeAddProductModal() {
+        window.closeAddProductModal = function() {
             document.getElementById('add-product-modal').classList.add('hidden');
         }
 
-        function handleAddProduct(e) {
+        // Envoi direct de l'article vers Supabase
+        window.handleAddProduct = async function(e) {
             e.preventDefault();
             if (!currentImageBase64) {
-                alert("Veuillez importer une photo compressée pour l'article.");
+                alert("Veuillez importer une photo pour l'article.");
                 return;
             }
 
-            const newProd = {
-                id: 'prod_' + Math.random().toString(36).substr(2, 9),
+            const productData = {
                 title: document.getElementById('prod-title').value,
                 price: parseInt(document.getElementById('prod-price').value),
                 category: document.getElementById('prod-category').value,
@@ -486,27 +496,42 @@
                 description: document.getElementById('prod-desc').value
             };
 
-            currentMerchant.products.push(newProd);
-            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-            closeAddProductModal();
-            renderMerchantProducts();
-            alert("Article publié avec succès sur SupplyBox !");
+            const success = await publishProductToSupabase(productData);
+            if (success) {
+                closeAddProductModal();
+                loadMerchantProductsFromSupabase();
+            }
         }
 
-        function deleteProduct(prodId) {
-            currentMerchant.products = currentMerchant.products.filter(p => p.id !== prodId);
-            localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
-            renderMerchantProducts();
+        window.deleteProduct = async function(prodId) {
+            const { error } = await supabase
+                .from('products')
+                .delete()
+                .eq('id', prodId);
+
+            if (error) {
+                alert("Erreur lors de la suppression : " + error.message);
+            } else {
+                loadMerchantProductsFromSupabase();
+            }
         }
 
-        function renderMerchantProducts() {
+        async function loadMerchantProductsFromSupabase() {
             const list = document.getElementById('merchant-products-list');
-            if (!currentMerchant.products || currentMerchant.products.length === 0) {
+            if (!currentMerchant || !currentMerchant.id) return;
+
+            const { data, error } = await supabase
+                .from('products')
+                .select('*')
+                .eq('merchant_id', currentMerchant.id)
+                .order('created_at', { ascending: false });
+
+            if (error || !data || data.length === 0) {
                 list.innerHTML = `<div class="col-span-full text-center py-6 text-slate-500 text-xs">Aucun article publié pour le moment.</div>`;
                 return;
             }
 
-            list.innerHTML = currentMerchant.products.map(p => `
+            list.innerHTML = data.map(p => `
                 <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex gap-3 items-center justify-between">
                     <img src="${p.image}" class="w-14 h-14 rounded-lg object-cover">
                     <div class="flex-1 min-w-0">
