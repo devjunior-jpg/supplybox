@@ -56,7 +56,7 @@
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-6">
-        <!-- Inscription -->
+        <!-- Inscription avec Ajout de Quartier Personnalisé & Géolocalisation GPS -->
         <section id="auth-section" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-5">
             <div class="text-center space-y-1">
                 <h2 class="text-xl font-bold text-white">Rejoignez SupplyBox Togo</h2>
@@ -72,18 +72,24 @@
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Numéro WhatsApp Commercial (+228) *</label>
                     <input type="tel" id="reg-whatsapp" required placeholder="Ex: 90000000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Quartier du Magasin (Lomé) *</label>
-                    <select id="reg-quarter" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
-                        <option value="Déckon">Déckon</option>
-                        <option value="Adidogomé">Adidogomé</option>
-                        <option value="Hedzranawoé">Hedzranawoé</option>
-                        <option value="Tokoin">Tokoin</option>
-                        <option value="Agbalépédou">Agbalépédou</option>
-                        <option value="Kodjoviakopé">Kodjoviakopé</option>
-                        <option value="Bè">Bè</option>
-                    </select>
+                
+                <!-- AJOUTER UN LIEU / QUARTIER LIBRE OU GÉOLOCALISATION -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-slate-300">Quartier ou Lieu de la Boutique (Lomé) *</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="reg-quarter" required placeholder="Ex: Agoè, Bè, Hedzranawoé..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+                        <button type="button" onclick="getDeviceLocation()" class="bg-slate-800 hover:bg-slate-700 text-brand-400 px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1 border border-slate-700 transition" title="Utiliser ma position GPS">
+                            <i class="ph-bold ph-crosshair text-base"></i>
+                            <span class="hidden sm:inline">GPS</span>
+                        </button>
+                    </div>
+                    <p id="geo-status" class="text-[10px] text-slate-500">Saisissez votre quartier ou cliquez sur GPS pour positionner votre commerce sur la carte.</p>
                 </div>
+
+                <!-- Champs cachés pour stocker la latitude et longitude GPS -->
+                <input type="hidden" id="reg-lat" value="6.1319">
+                <input type="hidden" id="reg-lng" value="1.2228">
+
                 <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
                     <i class="ph-bold ph-storefront text-lg"></i>
                     <span>Créer mon compte Vendeur</span>
@@ -178,26 +184,56 @@
 
         let currentMerchant = null;
         let currentImageBase64 = null;
-
-        // Clé FedaPay Sandbox (Remplacez par votre clé pk_sandbox_... ou pk_live_...)
         const FEDAPAY_PUBLIC_KEY = 'pk_sandbox_6695770067'; 
+
+        // Fonction pour récupérer la position GPS exacte du marchand
+        window.getDeviceLocation = function() {
+            const statusEl = document.getElementById('geo-status');
+            if (navigator.geolocation) {
+                statusEl.textContent = "Recherche de votre position GPS...";
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        document.getElementById('reg-lat').value = lat;
+                        document.getElementById('reg-lng').value = lng;
+                        statusEl.innerHTML = `<span class="text-emerald-400 font-semibold"><i class="ph-bold ph-check"></i> Position GPS enregistrée avec succès (${lat.toFixed(4)}, ${lng.toFixed(4)}) !</span>`;
+                    },
+                    (error) => {
+                        statusEl.innerHTML = `<span class="text-rose-400">Impossible de récupérer la position GPS. Saisissez votre quartier manuellement.</span>`;
+                    },
+                    { timeout: 10000 }
+                );
+            } else {
+                alert("La géolocalisation n'est pas supportée par votre navigateur.");
+            }
+        };
 
         window.handleAuth = async function(e) {
             e.preventDefault();
             const store = document.getElementById('reg-store').value;
             const whatsapp = document.getElementById('reg-whatsapp').value;
             const quarter = document.getElementById('reg-quarter').value;
+            const lat = parseFloat(document.getElementById('reg-lat').value);
+            const lng = parseFloat(document.getElementById('reg-lng').value);
 
             const { data, error } = await supabase
                 .from('merchants')
-                .insert([{ store_name: store, whatsapp: whatsapp, quarter: quarter, plan_type: 'FREE' }])
+                .insert([{ 
+                    store_name: store, 
+                    whatsapp: whatsapp, 
+                    quarter: quarter, 
+                    latitude: lat,
+                    longitude: lng,
+                    plan_type: 'FREE' 
+                }])
                 .select()
                 .single();
 
             if (error) {
-                currentMerchant = { id: 'merch_' + Math.random().toString(36).substr(2, 9), storeName: store, whatsapp: whatsapp, quarter: quarter, plan: 'FREE' };
+                currentMerchant = { id: 'merch_' + Math.random().toString(36).substr(2, 9), storeName: store, whatsapp: whatsapp, quarter: quarter, latitude: lat, longitude: lng, plan: 'FREE' };
             } else {
-                currentMerchant = { id: data.id, storeName: data.store_name, whatsapp: data.whatsapp, quarter: data.quarter, plan: data.plan_type };
+                currentMerchant = { id: data.id, storeName: data.store_name, whatsapp: data.whatsapp, quarter: data.quarter, latitude: data.latitude, longitude: data.longitude, plan: data.plan_type };
             }
 
             localStorage.setItem('sb_merchant_session', JSON.stringify(currentMerchant));
