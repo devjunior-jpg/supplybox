@@ -2,10 +2,8 @@
 <html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="favicon.png">
-    <!-- Adaptation mobile et PC universelle -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="favicon.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#16a34a">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -31,7 +29,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-full selection:bg-rose-500 selection:text-white flex flex-col justify-between">
 
-    <!-- Écran de Sécurité / Connexion Admin Adapté à tous les appareils -->
+    <!-- Écran de Sécurité / Connexion Admin -->
     <div id="lock-screen" class="fixed inset-0 z-50 bg-slate-950 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center space-y-6">
             <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center mx-auto text-emerald-500 text-3xl">
@@ -48,13 +46,6 @@
                     <i class="ph-bold ph-lock-open text-xl"></i>
                     <span>Accéder au Tableau de Bord</span>
                 </button>
-                
-                <!-- Bouton d'installation intégré et adapté mobile/PC -->
-                <button id="install-app-btn" style="display: none;" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 py-3 rounded-xl text-xs font-bold items-center justify-center gap-2 transition">
-                    <i class="ph-bold ph-download-simple text-base text-brand-500"></i> Installer l'application sur l'appareil
-                </button>
-
-                <p id="bio-status-msg" class="text-[11px] text-slate-500">Optimisé pour PC, Tablettes & Smartphones</p>
             </div>
         </div>
     </div>
@@ -82,68 +73,119 @@
         </header>
 
         <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
-            <div class="p-6 bg-slate-900 border border-slate-800 rounded-2xl text-center space-y-2 shadow-xl">
-                <i class="ph-bold ph-check-circle text-emerald-400 text-4xl"></i>
-                <h3 class="text-lg font-bold text-white">Session Administrateur Active</h3>
-                <p class="text-xs text-slate-400">Toutes les opérations d'administration sont sécurisées et reliées au point officiel 92485866.</p>
+            <div class="p-6 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between shadow-xl">
+                <div class="space-y-1">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="ph-bold ph-storefront text-emerald-400"></i> Liste des Marchands Inscrits
+                    </h3>
+                    <p class="text-xs text-slate-400">Suivi en direct des inscriptions et de leurs formules</p>
+                </div>
+                <button onclick="loadAdminMerchants()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                    <i class="ph-bold ph-arrows-clockwise text-brand-500"></i> Actualiser
+                </button>
+            </div>
+
+            <!-- Tableau des marchands -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase bg-slate-950/50">
+                                <th class="p-4">Boutique</th>
+                                <th class="p-4">WhatsApp</th>
+                                <th class="p-4">Quartier</th>
+                                <th class="p-4">Formule (Plan)</th>
+                                <th class="p-4">Date d'inscription</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-merchants-table" class="divide-y divide-slate-800 text-xs text-slate-300">
+                            <tr>
+                                <td colspan="5" class="p-6 text-center text-slate-500">Chargement des marchands...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
 
-   <footer class="max-w-6xl mx-auto px-4 py-6 border-t border-slate-800 text-center text-xs text-slate-500 space-y-2">
+    <footer class="max-w-6xl mx-auto px-4 py-6 border-t border-slate-800 text-center text-xs text-slate-500 space-y-2">
         <p>SupplyBox Togo © 2026 - Plateforme E-commerce pour Marchands à Lomé</p>
-        <div class="flex justify-center gap-4 text-slate-400 font-medium">
-            <a href="conditions.html" class="hover:text-brand-400 underline transition">Manuel & CGU</a>
-            <span>•</span>
-            <a href="confidentialite.html" class="hover:text-brand-400 underline transition">Confidentialité</a>
-        </div>
-        <p>Support Officiel : <a href="https://wa.me/22892485866" class="text-brand-400 underline font-bold">+228 92 48 58 66</a> | Email : <a href="mailto:devjunior33@gmail.com" class="text-slate-400 underline">devjunior33@gmail.com</a></p>
+        <p>Support Officiel : <a href="https://wa.me/22892485866" class="text-brand-400 underline font-bold">+228 92 48 58 66</a> | Email : devjunior33@gmail.com</p>
     </footer>
-    <!-- Script PWA / Gestion de l'installation sur tous les appareils -->
-    <script>
-        let deferredPwaPrompt;
-        const installBtn = document.getElementById('install-app-btn');
 
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPwaPrompt = e;
-            installBtn.style.display = 'flex';
-        });
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+        const SUPABASE_URL = 'https://btkvexlwkxobuylycnug.supabase.co'
+        const SUPABASE_ANON_KEY = 'sb_publishable_SsmIsG5aQF9xK3TRZRCdVw_WaQjmlhk'
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPwaPrompt) return;
-            deferredPwaPrompt.prompt();
-            const { outcome } = await deferredPwaPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('Application installée avec succès');
-            }
-            deferredPwaPrompt = null;
-            installBtn.style.display = 'none';
-        });
-    </script>
-
-    <!-- Script de gestion de l'affichage du dashboard -->
-    <script>
-        function unlockDashboard() {
+        window.unlockDashboard = function() {
             document.getElementById('lock-screen').classList.add('hidden');
             document.getElementById('admin-dashboard-content').classList.remove('hidden');
-        }
+            window.loadAdminMerchants();
+        };
 
-        function lockAdminDashboard() {
+        window.lockAdminDashboard = function() {
             document.getElementById('admin-dashboard-content').classList.add('hidden');
             document.getElementById('lock-screen').classList.remove('hidden');
-        }
-    </script>
+        };
 
-    <!-- Enregistrement du Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(() => console.log('Service Worker actif pour tous les appareils.'))
-                    .catch((err) => console.log('Erreur SW:', err));
-            });
-        }
+        window.loadAdminMerchants = async function() {
+            const tbody = document.getElementById('admin-merchants-table');
+            if (!tbody) return;
+            
+            const { data, error } = await supabase
+                .from('merchants')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-rose-400">Erreur de chargement : ${error.message}</td></tr>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">Aucun marchand inscrit pour le moment.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map(m => {
+                let badgeColor = "bg-slate-800 text-slate-400 border-slate-700";
+                if (m.plan_type === 'VIP') badgeColor = "bg-amber-500/20 text-amber-400 border-amber-500/40";
+                if (m.plan_type === 'PRO') badgeColor = "bg-blue-500/20 text-blue-400 border-blue-500/40";
+
+                const dateFormatted = new Date(m.created_at).toLocaleDateString('fr-FR', {
+                    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                return `
+                    <tr class="hover:bg-slate-800/50 transition">
+                        <td class="p-4 font-bold text-white flex items-center gap-2">
+                            <div class="w-7 h-7 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center font-bold text-xs">🏪</div>
+                            ${m.store_name}
+                        </td>
+                        <td class="p-4 font-mono">${m.whatsapp}</td>
+                        <td class="p-4 text-slate-400">${m.quarter}</td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${badgeColor}">
+                                PASS ${m.plan_type || 'FREE'}
+                            </span>
+                        </td>
+                        <td class="p-4 text-slate-400">${dateFormatted}</td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        // Realtime Supabase : Notification visuelle immédiate + mise à jour auto du tableau
+        supabase
+          .channel('public:merchants')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'merchants' }, (payload) => {
+            alert(`🔔 Nouveau marchand enregistré : ${payload.new.store_name} (Pass : ${payload.new.plan_type || 'FREE'}) !`);
+            window.loadAdminMerchants();
+          })
+          .subscribe();
     </script>
 </body>
 </html>
